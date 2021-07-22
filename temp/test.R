@@ -75,3 +75,6 @@ visualiser_evolution_validations(
 
 DonneesBilan2021 %>%
     visualiser_validation(dept_nom)
+
+DonneesBilan2021 %>%
+    visualiser_evolution_roe(groupe = dept_nom, log_y = TRUE)

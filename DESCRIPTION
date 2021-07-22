@@ -12,6 +12,8 @@ Imports:
     dplyr,
     ggalluvial,
     ggplot2,
+    ggrepel,
+    lubridate,
     purrr,
     stringr,
     treemapify,
