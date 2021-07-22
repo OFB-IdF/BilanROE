@@ -26,3 +26,37 @@ OuvragesPrioritaires <- readxl::read_xlsx(
     dplyr::select(identifiant_roe = `Code ROE`) %>%
     dplyr::mutate(prioritaire = TRUE)
 
+DonneesBilan2020 <- preparer_donnees_bilan(
+    donnees_brutes = DonneesBrutes2020,
+    # ATTENTION les ouvrages non validés ou gelés ne sont pas intégrés dans
+    # l'export de la BDOE, il faut donc vérifier, en particulier pour les
+    # ouvrages non validés s'ils sont localisés sur des cours d'eau classés ou
+    # non
+    listes = Listes1et2,
+    ouvrages_prioritaires = OuvragesPrioritaires
+) %>%
+    dplyr::mutate(dept_nom = factor(
+        dept_nom,
+        levels = c(
+            "PARIS", "HAUTS-DE-SEINE", "SEINE-SAINT-DENIS", "VAL-DE-MARNE",
+            "ESSONNE", "YVELINES", "VAL-D'OISE", "SEINE-ET-MARNE"
+            )
+        ))
+
+DonneesBilan2021 <- preparer_donnees_bilan(
+    donnees_brutes = DonneesBrutes2021,
+    # ATTENTION les ouvrages non validés ou gelés ne sont pas intégrés dans
+    # l'export de la BDOE, il faut donc vérifier, en particulier pour les
+    # ouvrages non validés s'ils sont localisés sur des cours d'eau classés ou
+    # non
+    listes = Listes1et2,
+    ouvrages_prioritaires = OuvragesPrioritaires
+) %>%
+    dplyr::mutate(dept_nom = factor(
+        dept_nom,
+        levels = c(
+            "PARIS", "HAUTS-DE-SEINE", "SEINE-SAINT-DENIS", "VAL-DE-MARNE",
+            "ESSONNE", "YVELINES", "VAL-D'OISE", "SEINE-ET-MARNE"
+        )
+    ))
+
