@@ -10,9 +10,13 @@ License: What license is it under?
 Imports: 
     archive,
     dplyr,
+    ggalluvial,
+    ggplot2,
     purrr,
     stringr,
+    treemapify,
     vroom,
+    withr
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

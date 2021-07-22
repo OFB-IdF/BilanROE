@@ -60,3 +60,18 @@ DonneesBilan2021 <- preparer_donnees_bilan(
         )
     ))
 
+DonneesBilan2020 %>%
+    synthetiser_validation(dept_nom)
+DonneesBilan2021 %>%
+    synthetiser_validation(dept_nom)
+
+visualiser_evolution_validations(
+    list(
+        "Septembre 2020" = DonneesBilan2020,
+        "Mars 2021" = DonneesBilan2021
+    ),
+    log_y = TRUE
+)
+
+DonneesBilan2021 %>%
+    visualiser_validation(dept_nom)
