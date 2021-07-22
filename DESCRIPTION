@@ -13,9 +13,13 @@ Imports:
     ggalluvial,
     ggplot2,
     ggrepel,
+    ggtext,
+    ggupset,
     lubridate,
+    patchwork,
     purrr,
     stringr,
+    tidyr,
     treemapify,
     vroom,
     withr

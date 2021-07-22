@@ -78,3 +78,13 @@ DonneesBilan2021 %>%
 
 DonneesBilan2021 %>%
     visualiser_evolution_roe(groupe = dept_nom, log_y = TRUE)
+
+DonneesBilan2021 %>%
+    synthetiser_completude(dept_nom, liste2, prioritaire)
+
+DonneesBilan2021  %>%
+    visualiser_completude(
+        visualiser_prioritaires = TRUE,
+        groupe = dept_nom
+        )
+
