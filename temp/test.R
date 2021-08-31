@@ -1,4 +1,6 @@
 library(BilanROE)
+library(templatesOFB)
+
 
 CheminExportROE2020 <- "temp/geobs_interne2020_09_22.zip"
 CheminExportROE2021 <- "temp/geobs_interne2021_03_13_sansRadars.zip"
@@ -71,13 +73,33 @@ visualiser_evolution_validations(
         "Mars 2021" = DonneesBilan2021
     ),
     log_y = TRUE
-)
+) +
+    templatesOFB::theme_ofb() +
+    ggplot2::theme(
+        strip.text = ggplot2::element_blank()
+    )
 
 DonneesBilan2021 %>%
     visualiser_validation(dept_nom)
 
 DonneesBilan2021 %>%
-    visualiser_evolution_roe(groupe = dept_nom, log_y = TRUE)
+    visualiser_evolution_roe(groupe = dept_nom, log_y = TRUE) +
+    ggplot2::scale_colour_manual(
+        values = c(
+            "PARIS" = templatesOFB::ofb_cols("rouge")[[1]],
+            "SEINE-SAINT-DENIS" = templatesOFB::ofb_cols("rouge")[[1]],
+            "HAUTS-DE-SEINE" = templatesOFB::ofb_cols("rouge")[[1]],
+            "VAL-DE-MARNE" = templatesOFB::ofb_cols("rouge")[[1]],
+            "ESSONNE" = templatesOFB::ofb_cols("bleu1")[[1]],
+            "SEINE-ET-MARNE" = templatesOFB::ofb_cols("vert1")[[1]],
+            "YVELINES" = templatesOFB::ofb_cols("orange2")[[1]],
+            "VAL-D'OISE" = templatesOFB::ofb_cols("orange2")[[1]]
+        )
+    ) +
+    templatesOFB::theme_ofb() +
+    ggplot2::theme(
+        legend.position = "none"
+    )
 
 DonneesBilan2021 %>%
     synthetiser_completude(dept_nom, liste2, prioritaire)
