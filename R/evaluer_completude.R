@@ -14,6 +14,7 @@
 #' @importFrom dplyr select starts_with filter group_by summarise mutate left_join transmute across
 #' @importFrom stringr str_replace_all
 #' @importFrom tidyr pivot_longer
+#' @importFrom janitor make_clean_names
 evaluer_completude <- function(donnees_bilan) {
 
     PassesPoisson <- donnees_bilan %>%
@@ -77,12 +78,14 @@ evaluer_completude <- function(donnees_bilan) {
             by = "identifiant_roe"
         ) %>%
         dplyr::mutate(
-            hauteur_chute_etiage_classe = stringr::str_replace_all(
-                string = hauteur_chute_etiage_classe,
-                pattern = "Indéterminée",
-                replacement = NA_character_
-            )
-        ) %>%
+            hauteur_chute_etiage_classe = hauteur_chute_etiage_classe %>%
+                janitor::make_clean_names() %>%
+                stringr::str_replace_all(
+                    string = .,
+                    pattern = "indeterminee",
+                    replacement = NA_character_
+                    )
+            ) %>%
         dplyr::transmute(
             identifiant_roe,
             dplyr::across(
@@ -222,7 +225,7 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
                             )
                     )
             ) %>%
-        dplyr::group_by({{ groupe }}, prioritaire, identifiant_roe, type_information) %>%
+        dplyr::group_by({{ groupe }}, prioritaire, identifiant_roe) %>%
         dplyr::summarise(
             information_manquante = list(information),
             .groups = "drop"

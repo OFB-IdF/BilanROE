@@ -22,7 +22,8 @@ Imports:
     tidyr,
     treemapify,
     vroom,
-    withr
+    withr,
+    janitor
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
