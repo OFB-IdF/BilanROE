@@ -18,7 +18,7 @@
 #' @importFrom purrr map2_df
 visualiser_evolution_validations <- function(liste_bilans, ..., log_y = FALSE) {
     withr::with_package(
-        package = "ggplot2",
+        package = "ggalluvial",
         code = {
             EvolutionValidations <- purrr::map2_df(
                 .x = liste_bilans,
@@ -67,7 +67,7 @@ visualiser_evolution_validations <- function(liste_bilans, ..., log_y = FALSE) {
                                  label = label)) +
                 ggplot2::scale_x_discrete(expand = c(.1, .1)) +
                 ggalluvial::geom_flow() +
-                ggalluvial::geom_stratum(alpha = .5) +
+                ggalluvial::geom_stratum(alpha = .5, colour = NA) +
                 ggplot2::geom_text(stat = "stratum", size = 3) +
                 ggplot2::facet_wrap(facets = ggplot2::vars(...),
                                     scales=  "free_y") +

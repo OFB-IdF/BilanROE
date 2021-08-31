@@ -93,7 +93,8 @@ visualiser_evolution_roe <- function(donnees_bilan, groupe = NULL, log_y = FALSE
                     colour = {{ groupe }}
                 ),
                 hjust = 0,
-                nudge_x = 60
+                nudge_x = 60,
+                min.segment.length = ggplot2::unit(100, "pt")
             ) +
             ggplot2::theme(legend.position = "none")
     }
