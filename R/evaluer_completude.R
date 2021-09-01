@@ -37,30 +37,30 @@ evaluer_completude <- function(donnees_bilan) {
                 )
             )
 
-    Usages <- donnees_bilan %>%
-        dplyr::select(
-            identifiant_roe,
-            dplyr::starts_with("usage_code")
-        ) %>%
-        tidyr::pivot_longer(
-            cols = dplyr::starts_with("usage_code"),
-            names_to = "name",
-            values_to = "usage"
-        ) %>%
-        dplyr::filter(!is.na(usage)) %>%
-        dplyr::select(-name) %>%
-        dplyr::group_by(identifiant_roe) %>%
-        dplyr::summarise(
-            usage = paste(
-                usage,
-                collapse = ", "
-                )
-            )
+    # Usages <- donnees_bilan %>%
+    #     dplyr::select(
+    #         identifiant_roe,
+    #         dplyr::starts_with("usage_code")
+    #     ) %>%
+    #     tidyr::pivot_longer(
+    #         cols = dplyr::starts_with("usage_code"),
+    #         names_to = "name",
+    #         values_to = "usage"
+    #     ) %>%
+    #     dplyr::filter(!is.na(usage)) %>%
+    #     dplyr::select(-name) %>%
+    #     dplyr::group_by(identifiant_roe) %>%
+    #     dplyr::summarise(
+    #         usage = paste(
+    #             usage,
+    #             collapse = ", "
+    #             )
+    #         )
 
     donnees_bilan %>%
         dplyr::select(
-            -dplyr::starts_with("fpi_"),
-            -dplyr::starts_with("usage_")
+            -dplyr::starts_with("fpi_")#,
+            # -dplyr::starts_with("usage_")
         ) %>%
         dplyr::mutate(
             coordonnees = ifelse(
@@ -73,10 +73,10 @@ evaluer_completude <- function(donnees_bilan) {
             PassesPoisson,
             by = "identifiant_roe"
         ) %>%
-        dplyr::left_join(
-            Usages,
-            by = "identifiant_roe"
-        ) %>%
+        # dplyr::left_join(
+        #     Usages,
+        #     by = "identifiant_roe"
+        # ) %>%
         dplyr::mutate(
             hauteur_chute_etiage_classe = hauteur_chute_etiage_classe %>%
                 janitor::make_clean_names() %>%
@@ -95,8 +95,8 @@ evaluer_completude <- function(donnees_bilan) {
                     "etat_code",
                     "coordonnees",
                     "hauteur_chute_etiage_classe",
-                    "passe_poisson",
-                    "usage"
+                    "passe_poisson"#,
+                    # "usage"
                 ),
                 .fns = function(x) {
                     as.numeric(!is.na(x))
@@ -105,7 +105,7 @@ evaluer_completude <- function(donnees_bilan) {
         ) %>%
         dplyr::mutate(
             obligatoire = nom_principal + type_code + etat_code + coordonnees,
-            complementaire = hauteur_chute_etiage_classe + passe_poisson + usage
+            complementaire = hauteur_chute_etiage_classe + passe_poisson# + usage
         )
 
 }
@@ -138,7 +138,7 @@ synthetiser_completude <- function(donnees_bilan, ...) {
         dplyr::group_by(...) %>%
         dplyr::summarise(
             obligatoire_manquant = dplyr::n_distinct(identifiant_roe[obligatoire < 4]),
-            complementaire_manquant = dplyr::n_distinct(identifiant_roe[complementaire < 3]),
+            complementaire_manquant = dplyr::n_distinct(identifiant_roe[complementaire < 2]),
             total = dplyr::n_distinct(identifiant_roe),
             .groups = "drop"
         )
@@ -184,7 +184,7 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
     ) %>%
         dplyr::select(-obligatoire, -complementaire) %>%
         tidyr::pivot_longer(
-            cols = nom_principal:usage,
+            cols = nom_principal:passe_poisson,
             names_to = "information",
             values_to = "renseignement"
         ) %>%
