@@ -12,9 +12,9 @@
 #' @seealso synthetiser_completude visualiser_completude
 #'
 #' @importFrom dplyr select starts_with filter group_by summarise mutate left_join transmute across
+#' @importFrom janitor make_clean_names
 #' @importFrom stringr str_replace_all
 #' @importFrom tidyr pivot_longer
-#' @importFrom janitor make_clean_names
 evaluer_completude <- function(donnees_bilan) {
 
     PassesPoisson <- donnees_bilan %>%
@@ -146,10 +146,10 @@ synthetiser_completude <- function(donnees_bilan, ...) {
 
 #' Visualisation de la synthèse de la complétude des données obligatoires et complémentaires
 #'
-#' Représente sous la forme d'une graphique de type 'upset' la complétude des informations obligatoires (nom, type, état et coordonnées) et de trois informations complémentaires (classe de hauteur de chute, usage et équipement en dispositif de franchissement piscicole). Le nombre d'ouvrage correspondant à chaque combinaison d'information manquante est représenté. Cette répartition peut être déclinée par une variable de regroupement des ouvrages (e.g. par département)
+#' Représente sous la forme d'une graphique de type 'upset' la complétude des informations obligatoires (nom, type, état et coordonnées) et de deux informations complémentaires (classe de hauteur de chute et équipement en dispositif de franchissement piscicole). Le nombre d'ouvrage correspondant à chaque combinaison d'information manquante est représenté. Cette répartition peut être déclinée par une variable de regroupement des ouvrages (e.g. par département)
 #'
 #' @inheritParams visualiser_validation
-#' @param visualiser_prioritaires valeur logique (TRUE/FALSE) contrôlant si le détail du nombre d'ouvrage est afficher en différentiant les ouvrages prioritaires ou pas
+#' @param visualiser_prioritaires valeur logique (TRUE/FALSE) contrôlant si le détail du nombre d'ouvrage est afficher en différenciant les ouvrages prioritaires ou pas
 #' @param nombre_lignes nombre de lignes sur lesquelles répartir les graphiques crées pour chacun des `groupe`s. Calculé automatiquement par défaut
 #' @param nombre_colonnes nombre de colonnes sur lesquelles répartir les graphiques crées pour chacun des `groupe`s. Calculé automatiquement par défaut.
 #' @param ajuster_ymax valeur numérique par laquelle le maximum de l'axe y est ajusté pour augmenter l'espace entre les barres et le titre. Valeur par défaut de 1.1
@@ -324,4 +324,87 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
                 }
             ) %>%
         patchwork::wrap_plots(nrow = nombre_lignes, ncol = nombre_colonnes)
+}
+
+#' Cartographier la complétude des informations obligatoires et complémentaires
+#'
+#' Localise sur une carte les obstacles validés pour lesquels on dispose au
+#' moins des coordonnées géographiques. La symbologie utilisé permet
+#' d'identifier les ouvrages considérés comme prioritaires ainsi que le type
+#' d'information manquante parmi les trois informations obligatoires (nom, type
+#' et état de l'ouvrage) et deux informations complémentaires (classe de hauteur
+#' de chute et équipement de dispositif de franchissement piscicole).
+#'
+#' @inheritParams visualiser_validation
+#'
+#' @export
+#'
+#' @examples
+#' @importFrom dplyr filter select mutate case_when left_join arrange
+#' @importFrom ggplot2 ggplot geom_sf aes theme element_blank scale_shape_manual guides guide_legend
+#' @importFrom sf st_as_sf
+cartographier_completude <- function(donnees_bilan) {
+    DataCarte <- donnees_bilan %>%
+        evaluer_validation() %>%
+        dplyr::filter(validation == "Validé") %>%
+        evaluer_completude() %>%
+        dplyr::filter(coordonnees == 1) %>%
+        dplyr::select(
+            identifiant_roe,
+            obligatoire, complementaire
+            ) %>%
+        dplyr::mutate(
+            obligatoire = 4 - obligatoire,
+            complementaire = 2 - complementaire
+            ) %>%
+        dplyr::mutate(
+            total = obligatoire + complementaire,
+            info_manquante = dplyr::case_when(
+                obligatoire > 0 ~ "obligatoire",
+                complementaire > 0 ~ "complémentaire",
+                TRUE ~ "aucune"
+            )
+        ) %>%
+        dplyr::left_join(
+            donnees_bilan %>%
+                dplyr::select(
+                    identifiant_roe,
+                    liste1, liste2,
+                    ouvrage = prioritaire,
+                    x_l93, y_l93
+                    ),
+            by = "identifiant_roe"
+        ) %>%
+        dplyr::arrange(info_manquante) %>%
+        sf::st_as_sf(
+            coords = c("x_l93", "y_l93"),
+            crs = 2154
+                )
+
+    ggplot2::ggplot() +
+        ggplot2::geom_sf(
+            data = DataCarte,
+            mapping = ggplot2::aes(
+                shape = ouvrage,
+                fill = info_manquante
+            ),
+            size = 3) +
+        ggplot2::theme(
+            axis.line = ggplot2::element_blank(),
+            axis.ticks = ggplot2::element_blank(),
+            axis.text = ggplot2::element_blank()
+        ) +
+        ggplot2::scale_shape_manual(
+            labels = c("non prioritaire", "prioritaire"),
+            values = c(21, 24)
+            ) +
+        ggplot2::guides(
+            size = "none",
+            shape = ggplot2::guide_legend(
+                override.aes = list(size = 5)
+            ),
+            fill = ggplot2::guide_legend(
+                override.aes = list(size = 5, shape = 21)
+            ),
+        )
 }
