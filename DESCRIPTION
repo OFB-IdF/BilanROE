@@ -1,11 +1,11 @@
 Type: Package
 Package: BilanROE
-Title: What the Package Does (Title Case)
+Title: Réaliser des bilans sur les données du ROE
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line) Use four
-    spaces when indenting paragraphs within the Description.
+Author: Cédric Mondy
+Maintainer: Cédric Mondy <cedric.mondy@ofb.gouv.fr>
+Description: Ce package fournit des fonctions permettant de
+    réaliser certains bilans et figures à partir d'exports du ROE
 License: What license is it under?
 Imports: 
     archive,
@@ -28,3 +28,7 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Suggests: 
+    rmarkdown,
+    knitr
+VignetteBuilder: knitr
