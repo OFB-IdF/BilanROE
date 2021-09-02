@@ -21,7 +21,7 @@ evaluer_completude <- function(donnees_bilan) {
         dplyr::select(
             identifiant_roe,
             dplyr::starts_with("fpi_code")
-            ) %>%
+        ) %>%
         tidyr::pivot_longer(
             cols = dplyr::starts_with("fpi_code"),
             names_to = "name",
@@ -34,8 +34,8 @@ evaluer_completude <- function(donnees_bilan) {
             passe_poisson = paste(
                 passe_poisson,
                 collapse = ", "
-                )
             )
+        )
 
     # Usages <- donnees_bilan %>%
     #     dplyr::select(
@@ -84,8 +84,8 @@ evaluer_completude <- function(donnees_bilan) {
                     string = .,
                     pattern = "indeterminee",
                     replacement = NA_character_
-                    )
-            ) %>%
+                )
+        ) %>%
         dplyr::transmute(
             identifiant_roe,
             dplyr::across(
@@ -134,7 +134,7 @@ synthetiser_completude <- function(donnees_bilan, ...) {
         dplyr::left_join(
             Completude,
             by = "identifiant_roe"
-            ) %>%
+        ) %>%
         dplyr::group_by(...) %>%
         dplyr::summarise(
             obligatoire_manquant = dplyr::n_distinct(identifiant_roe[obligatoire < 4]),
@@ -222,9 +222,9 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
                         paste0(
                             " (",
                             dplyr::n_distinct(identifiant_roe), ")"
-                            )
-                    )
-            ) %>%
+                        )
+                )
+        ) %>%
         dplyr::group_by({{ groupe }}, prioritaire, identifiant_roe) %>%
         dplyr::summarise(
             information_manquante = list(information),
@@ -254,7 +254,7 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
                     dplyr::mutate(
                         ID = dplyr::across(groupe,
                                            paste0, collapse = ", ")
-                        )
+                    )
 
                 UpsetPlot <- df2 %>%
                     ggplot2::ggplot(
@@ -281,7 +281,7 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
                                 y = n_cum,
                                 group = prioritaire,
                                 label = n
-                                ),
+                            ),
                             vjust = -.75
                         )
                 } else {
@@ -291,7 +291,7 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
                             stat = "count",
                             ggplot2::aes(label = ggplot2::after_stat(count)),
                             vjust = -.75
-                            )
+                        )
                 }
 
                 UpsetPlot <- UpsetPlot +
@@ -301,12 +301,12 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
                         values = c(
                             `FALSE` = "lightgrey",
                             `TRUE` = c("#CD3333")
-                            )
-                        ) +
+                        )
+                    ) +
                     ggplot2::labs(
                         title = unique(df2$ID),
                         x = "", y = ""
-                        ) +
+                    ) +
                     ggplot2::theme(
                         panel.background = ggplot2::element_blank(),
                         panel.grid = ggplot2::element_blank(),
@@ -321,8 +321,8 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
                         breaks = int_breaks_rounded(yLims),
                         limits = c(yLims[1], yLims[2]*ajuster_ymax)
                     )
-                }
-            ) %>%
+            }
+        ) %>%
         patchwork::wrap_plots(nrow = nombre_lignes, ncol = nombre_colonnes)
 }
 
@@ -343,7 +343,8 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
 #' @importFrom dplyr filter select mutate case_when left_join arrange
 #' @importFrom ggplot2 ggplot geom_sf aes theme element_blank scale_shape_manual guides guide_legend
 #' @importFrom sf st_as_sf
-cartographier_completude <- function(donnees_bilan) {
+cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2 = NULL) {
+
     DataCarte <- donnees_bilan %>%
         evaluer_validation() %>%
         dplyr::filter(validation == "Validé") %>%
@@ -352,11 +353,11 @@ cartographier_completude <- function(donnees_bilan) {
         dplyr::select(
             identifiant_roe,
             obligatoire, complementaire
-            ) %>%
+        ) %>%
         dplyr::mutate(
             obligatoire = 4 - obligatoire,
             complementaire = 2 - complementaire
-            ) %>%
+        ) %>%
         dplyr::mutate(
             total = obligatoire + complementaire,
             info_manquante = dplyr::case_when(
@@ -369,26 +370,45 @@ cartographier_completude <- function(donnees_bilan) {
             donnees_bilan %>%
                 dplyr::select(
                     identifiant_roe,
-                    liste1, liste2,
                     ouvrage = prioritaire,
                     x_l93, y_l93
-                    ),
+                ),
             by = "identifiant_roe"
         ) %>%
         dplyr::arrange(info_manquante) %>%
         sf::st_as_sf(
             coords = c("x_l93", "y_l93"),
             crs = 2154
-                )
+        )
 
-    ggplot2::ggplot() +
+    Carte <- ggplot2::ggplot()
+
+    if (!is.null(reseau_hydro)) {
+        Carte <- Carte +
+            ggplot2::geom_sf(
+                data = reseau_hydro,
+                size = .5,
+                colour = "blue"
+                )
+    }
+
+    if (!is.null(listes2)) {
+        Carte <- Carte +
+            ggplot2::geom_sf(
+                data = listes2,
+                size = 2,
+                colour = "darkred"
+            )
+    }
+
+    Carte +
         ggplot2::geom_sf(
             data = DataCarte,
             mapping = ggplot2::aes(
                 shape = ouvrage,
                 fill = info_manquante
             ),
-            size = 3) +
+            size = 2.5) +
         ggplot2::theme(
             axis.line = ggplot2::element_blank(),
             axis.ticks = ggplot2::element_blank(),
@@ -397,7 +417,7 @@ cartographier_completude <- function(donnees_bilan) {
         ggplot2::scale_shape_manual(
             labels = c("non prioritaire", "prioritaire"),
             values = c(21, 24)
-            ) +
+        ) +
         ggplot2::guides(
             size = "none",
             shape = ggplot2::guide_legend(
