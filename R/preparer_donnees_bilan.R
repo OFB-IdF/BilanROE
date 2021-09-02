@@ -11,9 +11,11 @@
 #' @return
 #' @export
 #'
-preparer_donnees_bilan <- function(donnees_brutes, listes, ouvrages_prioritaires) {
+preparer_donnees_bilan <- function(donnees_brutes,
+                                   # listes,
+                                   ouvrages_prioritaires) {
     donnees_brutes %>%
         selectionner_donnees_bilan() %>%
-        ajouter_listes(listes) %>%
+        # ajouter_listes(listes) %>%
         ajouter_prioritaires(ouvrages_prioritaires)
 }
