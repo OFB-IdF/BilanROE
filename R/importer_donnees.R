@@ -42,3 +42,70 @@ importer_donnees <- function(chemin_archive, bassins = NULL, departements = NULL
                 )
         })
 }
+
+#' Télécharger les données cours d'eau de la BD Topage 2019
+#'
+#' Permet de télécharger soit l'ensemble du référentiel cours d'eau de la BD Topage pour la France continentale et la corse (`bassin = 99`), soit un ou plusieurs bassins hydrographiques
+#'
+#' @param bassin code du ou des bassins hydrographiques dont on veut télécharger le référentiel:
+#' - 01: Artois-Picardie
+#' - 02: Rhin-Meuse
+#' - 03: Seine-Normandie
+#' - 04: Loire-Bretagne
+#' - 05: Adour-Garonne
+#' - 06: Rhône-Méditerranée
+#' - 12: Corse
+#' - 99: France entière
+#'
+#' @return
+#' @export
+#'
+#' @examples
+telecharger_ce_topage <- function(bassin = 99) {
+    BassinsHydro <- c(
+        "01" = "01_Artois-Picardie",
+        "02" = "02_Rhin-Meuse",
+        "03" = "03-Seine-Normandie",
+        "04" = "04-Loire-Bretagne",
+        "05" = "05-Adour-Garonne",
+        "06" = "06-Rhône-Méditerranée",
+        "12" = "12_Corse",
+        "99" = "99"
+    )
+
+    if (any(!is.null(bassin))) {
+        sf::st_read("https://files.geo.data.gouv.fr/link-proxy/services.sandre.eaufrance.fr/2020-08-25/5f4456f3afddc2379f9721c1/courseau-fxx-gpkg.zip/courseau-fxx.gpkg")
+    } else {
+        if (any(!bassin %in% names(BassinsHydro)))
+            stop(
+                paste0(
+                    "Les valeurs passées dans l'argument bassin doivent être choisies parmi les suivantes: ",
+                    paste(names(BassinsHydro), collapse = ", ")
+                )
+            )
+
+        telecharger_topage_bassin <- function(catchment) {
+            temp_file <- tempfile()
+
+            download.file(
+                url = paste0("https://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDTopage/2019/CoursEau/Bassin/", BassinsHydro[catchment], "_CoursEau_shp.zip"),
+                destfile = temp_file
+            )
+            TopageBassin <- read_from_zip(
+                zipfile = temp_file,
+                file = ".shp",
+                fun = sf::st_read
+            )
+
+            unlink(temp_file)
+
+            TopageBassin
+        }
+
+        purrr::map_dfr(
+            bassin,
+            telecharger_topage_bassin
+        )
+
+    }
+}
