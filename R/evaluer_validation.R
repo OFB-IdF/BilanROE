@@ -21,20 +21,27 @@ evaluer_validation <- function(donnees_bilan) {
 
 #' Synthétiser l'information sur la validation des ouvrages
 #'
-#' L'évaluation de la validation de chaque ouvrage réalisée avec la fonction [evaluer_validation()] est synthétisée en comptant le nombre d'ouvrages validés, non validés ou gelés.
+#' L'évaluation de la validation de chaque ouvrage réalisée avec la fonction
+#' [evaluer_validation()] est synthétisée en comptant le nombre d'ouvrages
+#' validés, non validés ou gelés.
 #'
-#' Le décompte des ouvrages peut être réalisé au niveau du jeu de données entier (par défaut), ou au niveau de sous-ensembles en indiquant comme paramètres supplémentaires (`...`), les noms de champs pour lesquels on veut regarder en détail (e.g. dept_nom pour un détail par département, prioritaire pour un détail pour les ouvrages prioritaires ou non). Fournir plusieurs noms de champs à la place de `...` permet de considérer des groupes et sous-groupes définis par les combinaisons de ces champs.
+#' Le décompte des ouvrages peut être réalisé au niveau du jeu de données entier
+#' (par défaut), ou au niveau de sous-ensembles en indiquant comme paramètres
+#' supplémentaires (`...`), les noms de champs pour lesquels on veut regarder en
+#' détail (e.g. `dept_nom` pour un détail par département, `prioritaire` pour un
+#' détail pour les ouvrages prioritaires ou non). Fournir plusieurs noms de
+#' champs à la place de `...` permet de considérer des groupes et sous-groupes
+#' définis par les combinaisons de ces champs.
 #'
 #' @inheritParams synthetiser_completude
+#' @param format format du tableau retourné (long ou large)
 #'
-#' @return
 #' @export
 #'
-#' @seealso evaluer_validation visualiser_validation
-#'
 #' @importFrom dplyr group_by mutate n_distinct summarise
-synthetiser_validation <- function(donnees_bilan, ...) {
-    donnees_bilan %>%
+#' @importFrom tidyr pivot_wider
+synthetiser_validation <- function(donnees_bilan, ..., format = "long") {
+    BilanValidation <- donnees_bilan %>%
         evaluer_validation() %>%
         dplyr::group_by(...) %>%
         dplyr::mutate(total = dplyr::n_distinct(identifiant_roe)) %>%
@@ -43,6 +50,17 @@ synthetiser_validation <- function(donnees_bilan, ...) {
             nombre = dplyr::n_distinct(identifiant_roe),
             .groups = "drop"
         )
+
+    if (format == "large") {
+        BilanValidation %>%
+            tidyr::pivot_wider(
+                names_from = validation,
+                values_from = nombre,
+                values_fill = 0
+            )
+    } else {
+        BilanValidation
+    }
 }
 
 #' Visualisation de la synthèse des validations
