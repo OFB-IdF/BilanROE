@@ -394,14 +394,21 @@ cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2
             )
     }
 
+    for (i in c("aucune", "complémentaire", "obligatoire")) {
+        if (nrow(DataCarte %>%
+                 dplyr::filter(info_manquante == i)) > 0)
+            Carte <- Carte +
+                ggplot2::geom_sf(
+                    data = DataCarte %>%
+                        dplyr::filter(info_manquante == i),
+                    mapping = ggplot2::aes(
+                        shape = ouvrage,
+                        fill = info_manquante
+                    ),
+                    size = taille_obstacles)
+    }
+
     Carte +
-        ggplot2::geom_sf(
-            data = DataCarte,
-            mapping = ggplot2::aes(
-                shape = ouvrage,
-                fill = info_manquante
-            ),
-            size = 2.5) +
         ggplot2::theme(
             axis.line = ggplot2::element_blank(),
             axis.ticks = ggplot2::element_blank(),
