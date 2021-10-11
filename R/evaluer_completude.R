@@ -175,7 +175,14 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
             values_to = "renseignement"
         ) %>%
         dplyr::mutate(
-            type_information = ifelse(information %in% c("nom_principal", "type_code", "etat_code", "coordonnees"), "obligatoire", "complementaire")
+            type_information = ifelse(
+                information %in% c(
+                    "nom_principal", "type_code",
+                    "etat_code", "coordonnees"
+                ),
+                "obligatoire",
+                "complementaire"
+            )
         ) %>%
         dplyr::filter(renseignement == 0) %>%
         dplyr::group_by({{ groupe }}, information) %>%
