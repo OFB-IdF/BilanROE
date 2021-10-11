@@ -164,7 +164,7 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
         dplyr::select(donnees_bilan, prioritaire, identifiant_roe, {{ groupe }}),
         donnees_bilan %>%
             evaluer_validation() %>%
-            dplyr::filter(validation == "Validé") %>%
+            dplyr::filter(validation != "Gelé") %>%
             evaluer_completude(),
         by = "identifiant_roe"
     ) %>%
@@ -333,7 +333,7 @@ cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2
 
     DataCarte <- donnees_bilan %>%
         evaluer_validation() %>%
-        dplyr::filter(validation == "Validé") %>%
+        dplyr::filter(validation != "Gelé") %>%
         evaluer_completude() %>%
         dplyr::filter(coordonnees == 1) %>%
         dplyr::select(

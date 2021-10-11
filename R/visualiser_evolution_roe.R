@@ -21,7 +21,10 @@ visualiser_evolution_roe <- function(donnees_bilan, groupe = NULL, log_y = FALSE
 
     DonneesTendances <- donnees_bilan %>%
         dplyr::mutate(
-            date = lubridate::as_date(date_validation_ouvrage)
+            date = dplyr::case_when(
+                !is.na(date_validation_ouvrage) ~ lubridate::as_date(date_validation_ouvrage),
+                is.na(date_validation_ouvrage) & !is.na(date_modification_ouvrage) ~ lubridate::as_date(date_modification_ouvrage)
+            )
         ) %>%
         dplyr::filter(!is.na(date)) %>%
         dplyr::select({{ groupe }}, date) %>%
@@ -61,7 +64,7 @@ visualiser_evolution_roe <- function(donnees_bilan, groupe = NULL, log_y = FALSE
         ) +
         ggplot2::labs(
             x = "",
-            y = "nombre d'obstacles validés"
+            y = "nombre d'obstacles référencés"
         )
 
     if (class(ValidGroup) != "try-error" & ValidGroup == 1) {
