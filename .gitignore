@@ -8,3 +8,4 @@ man/
 *.zip
 
 temp/200525_ouvrages_prioritaires.xlsx
+inst/doc
