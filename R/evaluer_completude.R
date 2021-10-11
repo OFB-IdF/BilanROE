@@ -1,17 +1,24 @@
 #' Evaluer la complétude des données obligatoires et facultatives
 #'
-#' Cette fonction permet d'évaluer pour chaque ouvrage la complétion de l'information pour les champs obligatoires (nom, type, état et coordonnées) et trois champs complémentaires (classe de hauteur de chute, usage et équipement en dispositif de franchissement piscicole) du ROE.
+#' Cette fonction permet d'évaluer pour chaque ouvrage la complétion de
+#' l'information pour les champs obligatoires (nom, type, état et coordonnées)
+#' et deux champs complémentaires (classe de hauteur de chute et équipement en
+#' dispositif de franchissement piscicole) du ROE.
 #'
-#' Il est vérifié qu'une information est fournie pour les champs nom_principal, type_code, etat_code, pour les deux champs de coordonnées x_l93 et y_l93, pour le champ hauteur_chute_etiage_classe ainsi que pour au moins un des champs correspondant aux dispositifs de franchissement piscicole (fpi_code1 à fpi_code5) et à l'usage (usage_code1 à usage_code4). Le nombre d'information obligatoire (les coordonnées sont considérées comme une information unique) et complémentaire renseignées sont également calculés.
+#' Il est vérifié qu'une information est fournie pour les champs nom_principal,
+#' type_code, etat_code, pour les deux champs de coordonnées x_l93 et y_l93,
+#' pour le champ hauteur_chute_etiage_classe ainsi que pour au moins un des
+#' champs correspondant aux dispositifs de franchissement piscicole (fpi_code1 à
+#' fpi_code5). Le nombre d'information obligatoire (les coordonnées sont
+#' considérées comme une information unique) et complémentaire renseignées sont
+#' également calculés.
 #'
-#' @inheritParams ajouter_listes
+#' @inheritParams preparer_donnees_bilan
 #'
-#' @return
 #' @export
 #'
-#' @seealso synthetiser_completude visualiser_completude
-#'
-#' @importFrom dplyr select starts_with filter group_by summarise mutate left_join transmute across
+#' @importFrom dplyr select starts_with filter group_by summarise mutate
+#'   left_join transmute across
 #' @importFrom janitor make_clean_names
 #' @importFrom stringr str_replace_all
 #' @importFrom tidyr pivot_longer
@@ -130,20 +137,37 @@ synthetiser_completude <- function(donnees_bilan, ...) {
         )
 }
 
-#' Visualisation de la synthèse de la complétude des données obligatoires et complémentaires
+#' Visualisation de la synthèse de la complétude des données obligatoires et
+#' complémentaires
 #'
-#' Représente sous la forme d'une graphique de type 'upset' la complétude des informations obligatoires (nom, type, état et coordonnées) et de deux informations complémentaires (classe de hauteur de chute et équipement en dispositif de franchissement piscicole). Le nombre d'ouvrage correspondant à chaque combinaison d'information manquante est représenté. Cette répartition peut être déclinée par une variable de regroupement des ouvrages (e.g. par département)
+#' Représente sous la forme d'une graphique de type 'upset' la complétude des
+#' informations obligatoires (nom, type, état et coordonnées) et de deux
+#' informations complémentaires (classe de hauteur de chute et équipement en
+#' dispositif de franchissement piscicole). Le nombre d'ouvrage non gelés
+#' correspondant à chaque combinaison d'information manquante est représenté.
+#' Cette répartition peut être déclinée par une variable de regroupement des
+#' ouvrages (e.g. par département)
 #'
-#' @inheritParams visualiser_validation
-#' @param visualiser_prioritaires valeur logique (TRUE/FALSE) contrôlant si le détail du nombre d'ouvrage est afficher en différenciant les ouvrages prioritaires ou pas
-#' @param nombre_lignes nombre de lignes sur lesquelles répartir les graphiques crées pour chacun des `groupe`s. Calculé automatiquement par défaut
-#' @param nombre_colonnes nombre de colonnes sur lesquelles répartir les graphiques crées pour chacun des `groupe`s. Calculé automatiquement par défaut.
-#' @param ajuster_ymax valeur numérique par laquelle le maximum de l'axe y est ajusté pour augmenter l'espace entre les barres et le titre. Valeur par défaut de 1.1
+#' @inheritParams preparer_donnees_bilan
+#' @param groupe nom de la colonne pour laquelle on veut voir le détail
+#' @param visualiser_prioritaires valeur logique (TRUE/FALSE) contrôlant si le
+#'   détail du nombre d'ouvrage est afficher en différenciant les ouvrages
+#'   prioritaires ou pas
+#' @param nombre_lignes nombre de lignes sur lesquelles répartir les graphiques
+#'   crées pour chacun des `groupe`s. Calculé automatiquement par défaut
+#' @param nombre_colonnes nombre de colonnes sur lesquelles répartir les
+#'   graphiques crées pour chacun des `groupe`s. Calculé automatiquement par
+#'   défaut.
+#' @param ajuster_ymax valeur numérique par laquelle le maximum de l'axe y est
+#'   ajusté pour augmenter l'espace entre les barres et le titre. Valeur par
+#'   défaut de 1.1
 #'
 #'
 #' @export
-#' @importFrom dplyr select inner_join filter mutate group_by case_when n_distinct summarise group_split rowwise across count arrange
-#' @importFrom ggplot2 ggplot aes geom_bar geom_text after_stat scale_fill_manual labs theme element_blank layer_scales scale_y_continuous
+#' @importFrom dplyr select inner_join filter mutate group_by case_when
+#'   n_distinct summarise group_split rowwise across count arrange
+#' @importFrom ggplot2 ggplot aes geom_bar geom_text after_stat
+#'   scale_fill_manual labs theme element_blank layer_scales scale_y_continuous
 #' @importFrom ggtext element_markdown
 #' @importFrom ggupset scale_x_upset
 #' @importFrom patchwork wrap_plots
@@ -321,20 +345,28 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
 
 #' Cartographier la complétude des informations obligatoires et complémentaires
 #'
-#' Localise sur une carte les obstacles validés pour lesquels on dispose au
-#' moins des coordonnées géographiques. La symbologie utilisé permet
+#' Localise sur une carte les obstacles non gelés et pour lesquels on dispose au
+#' moins des coordonnées géographiques. La symbologie utilisée permet
 #' d'identifier les ouvrages considérés comme prioritaires ainsi que le type
 #' d'information manquante parmi les trois informations obligatoires (nom, type
 #' et état de l'ouvrage) et deux informations complémentaires (classe de hauteur
-#' de chute et équipement de dispositif de franchissement piscicole).
+#' de chute et équipement en dispositif de franchissement piscicole).
 #'
-#' @inheritParams visualiser_validation
+#' @inheritParams preparer_donnees_bilan
+#' @param reseau_hydro données spatiales (classe `sf`) du réseau hydrographique.
+#'   Par défaut, n'est pas affiché (NULL)
+#' @param listes2 données spatiales (classe `sf`) de la partie du réseau.Par
+#'   défaut, n'est pas affiché (NULL) hydrographique classé en liste 2
+#' @param limites_zone données spatiales (classe `sf`) des limites de la zone
+#'   représentée (région, département...). Par défaut, n'est pas affiché (NULL)
+#' @param taille_obstacles taille des figurés représentant les obstacles
+#'   (défaut: 2.5)
 #'
 #' @export
 #'
-#' @examples
 #' @importFrom dplyr filter select mutate case_when left_join arrange
-#' @importFrom ggplot2 ggplot geom_sf aes theme element_blank scale_shape_manual guides guide_legend
+#' @importFrom ggplot2 ggplot geom_sf aes theme element_blank scale_shape_manual
+#'   scale_colour_manual guides guide_legend
 #' @importFrom sf st_as_sf
 cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2 = NULL, limites_zone = NULL, taille_obstacles = 2.5) {
 

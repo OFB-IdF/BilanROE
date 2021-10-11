@@ -1,17 +1,21 @@
 #' Visualiser l'évolution du nombre d'ouvrages validés dans le ROE
 #'
-#' Cette fonction permet de visualiser simplement l'évolution du nombre cumulé d'ouvrages validés dans le ROE. Cette évolution peut être déclinée par une variable de regroupement des ouvrages (e.g. par département).
+#' Cette fonction permet de visualiser simplement l'évolution du nombre cumulé
+#' d'ouvrages dans le ROE. Cette évolution peut être déclinée par une variable
+#' de regroupement des ouvrages (e.g. par département).
 #'
-#' @inheritParams visualiser_validation
-#' @param log_y valeur logique (TRUE/FALSE) pour exprimer ou non l'axe des y (nombre d'obstacles validés) avec une échelle logarithmique
-#' @param ajuster_xmax valeur numérique par laquelle le maximum de l'axe x est ajusté pour laisser de la place aux annotations avec le nombre d'ouvrages.
+#' @inheritParams preparer_donnees_bilan
+#' @param log_y valeur logique (TRUE/FALSE) pour exprimer ou non l'axe des y
+#'   (nombre d'obstacles validés) avec une échelle logarithmique
+#' @param ajuster_xmax valeur numérique par laquelle le maximum de l'axe x est
+#'   ajusté pour laisser de la place aux annotations avec le nombre d'ouvrages.
 #'
-#' @return
+#' @return un objet ggplot
 #' @export
 #'
-#' @examples
-#' @importFrom dplyr select mutate filter group_by arrange n ungroup
-#' @importFrom ggplot2 ggplot aes geom_line geom_point geom_text labs scale_y_log10
+#' @importFrom dplyr select mutate case_when filter group_by arrange n ungroup
+#' @importFrom ggplot2 ggplot aes geom_line geom_point geom_text labs unit theme
+#'   layer_scales scale_x_date scale_y_log10
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom lubridate as_date
 visualiser_evolution_roe <- function(donnees_bilan, groupe = NULL, log_y = FALSE, ajuster_xmax = 1.015) {

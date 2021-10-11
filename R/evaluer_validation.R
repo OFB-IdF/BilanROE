@@ -1,13 +1,13 @@
 #' Evaluer la validation des fiches ouvrages
 #'
-#' Cette fonction permet d'évaluer simplement si un ouvrage est validé (sans faire la distinction entre point par point et par échantillonnage), gelé ou non validé.
+#' Cette fonction permet d'évaluer simplement si un ouvrage est validé (sans
+#' faire la distinction entre point par point et par échantillonnage), gelé ou
+#' non validé.
 #'
-#' @inheritParams ajouter_listes
+#' @inheritParams preparer_donnees_bilan
 #'
-#' @return
 #' @export
 #'
-#' @seealso synthetiser_validation visualiser_validation
 #' @importFrom dplyr mutate case_when
 evaluer_validation <- function(donnees_bilan) {
     donnees_bilan %>%
@@ -47,20 +47,20 @@ synthetiser_validation <- function(donnees_bilan, ...) {
 
 #' Visualisation de la synthèse des validations
 #'
-#' Représente sous la forme d'une treemap, la répartition des nombres d'ouvrages en fonction de leur statut de validation (Validé, Non validé ou Gelé). Cette répartition peut être déclinée par une variable de regroupement des ouvrages (e.g. par département)
+#' Représente sous la forme d'une treemap, la répartition des nombres d'ouvrages
+#' en fonction de leur statut de validation (Validé, Non validé ou Gelé). Cette
+#' répartition peut être déclinée par une variable de regroupement des ouvrages
+#' (e.g. par département)
 #'
-#' @inheritParams synthetiser_validation
-#' @param groupe nom de la colonne pour laquelle on veut voir le détail des nombres d'ouvrages gelés, validés ou non validés
+#' @inheritParams visualiser_completude
 #'
-#' @return
 #' @export
-#'
-#' @seealso evaluer_validation synthetiser_validation
 #'
 #' @importFrom dplyr select mutate
 #' @importFrom ggplot2 ggplot aes scale_fill_manual theme
 #' @importFrom stringr str_replace_na
-#' @importFrom treemapify geom_treemap geom_treemap_subgroup_border geom_treemap_subgroup_text geom_treemap_text
+#' @importFrom treemapify geom_treemap geom_treemap_subgroup_border
+#'   geom_treemap_subgroup_text geom_treemap_text
 visualiser_validation <- function(donnees_bilan, groupe = NULL) {
     ValidGroup <- try(
         ncol(dplyr::select(donnees_bilan, {{ groupe }}))

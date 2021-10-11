@@ -5,7 +5,6 @@
 #' @param fun nom de la fonction à utiliser pour lire le fichier
 #' @param ...  paramètres supplémentaires à passer à la fonction `fun`
 #'
-#' @return
 #' @export
 #'
 #' @importFrom archive archive_extract
@@ -29,12 +28,11 @@ read_from_zip <- function(zipfile, file, fun, ...) {
     return(obj)
 }
 
-#' Title
+#' Récupérer les valeurs uniques non nulles d'une colonne dans un tableau
 #'
-#' @param data
-#' @param column
-#'
-#' @return
+#' @param data tableau de données
+#' @param column nom de la colonne pour laquelle on veut récupérer les valeurs
+#'   uniques non nulles
 #'
 #' @importFrom dplyr filter distinct pull
 get_all_levels <- function(data, column) {

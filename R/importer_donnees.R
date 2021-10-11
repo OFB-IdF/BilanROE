@@ -1,10 +1,17 @@
 #' Importer les données de l'export
 #'
 #' @param chemin_archive texte. Chemin vers l'archive zip contenant l'export ROE
-#' @param bassins vecteur de texte. Noms des bassins hydrographiques (en majuscules) à importer. Par défaut (NULL), tous les bassins sont importés. Les obstacles avec un bassin non renseigné (NULL, NA ou '') ne sont pas importés.
-#' @param departements vecteur de texte. Codes INSEE des départements à importer. Par défaut (NULL), tous les départements sont importés. Les obstacles avec un département non renseigné (NULL, NA ou '') ne sont pas importés.
+#' @param bassins vecteur de texte. Noms des bassins hydrographiques (en
+#'   majuscules) à importer. Par défaut (NULL), tous les bassins sont importés.
+#'   Les obstacles avec un bassin non renseigné (NULL, NA ou '') ne sont pas
+#'   importés.
+#' @param departements vecteur de texte. Codes INSEE des départements à
+#'   importer. Par défaut (NULL), tous les départements sont importés. Les
+#'   obstacles avec un département non renseigné (NULL, NA ou '') ne sont pas
+#'   importés.
 #'
-#' @return
+#' @return un tableau contenant l'ensemble de l'export ROE renseigné, filtré le
+#'   cas échéant par bassin hydrographique ou département.
 #' @export
 #'
 #' @importFrom dplyr filter
@@ -45,22 +52,21 @@ importer_donnees <- function(chemin_archive, bassins = NULL, departements = NULL
 
 #' Télécharger les données cours d'eau de la BD Topage 2019
 #'
-#' Permet de télécharger soit l'ensemble du référentiel cours d'eau de la BD Topage pour la France continentale et la corse (`bassin = 99`), soit un ou plusieurs bassins hydrographiques
+#' Permet de télécharger soit l'ensemble du référentiel cours d'eau de la BD
+#' Topage pour la France continentale et la corse (`bassin = 99`), soit un ou
+#' plusieurs bassins hydrographiques en utilisant les services web du Sandre.
 #'
-#' @param bassin code du ou des bassins hydrographiques dont on veut télécharger le référentiel:
-#' - 01: Artois-Picardie
-#' - 02: Rhin-Meuse
-#' - 03: Seine-Normandie
-#' - 04: Loire-Bretagne
-#' - 05: Adour-Garonne
-#' - 06: Rhône-Méditerranée
-#' - 12: Corse
-#' - 99: France entière
+#' @param bassin code du ou des bassins hydrographiques dont on veut télécharger
+#'   le référentiel: - 01: Artois-Picardie - 02: Rhin-Meuse - 03:
+#'   Seine-Normandie - 04: Loire-Bretagne - 05: Adour-Garonne - 06:
+#'   Rhône-Méditerranée - 12: Corse - 99: France entière
 #'
-#' @return
+#' @return un tableau spatial (classe `sf`) contenant le référentiel
+#'   hydrographique du bassin hydrographique sélectionné.
 #' @export
 #'
-#' @examples
+#' @importFrom purrr map_dfr
+#' @importFrom sf st_read
 telecharger_ce_topage <- function(bassin = 99) {
     BassinsHydro <- c(
         "01" = "01_Artois-Picardie",
