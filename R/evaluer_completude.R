@@ -389,8 +389,8 @@ cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2
         Carte <- Carte +
             ggplot2::geom_sf(
                 data = listes2,
-                size = 2,
-                colour = "darkred"
+                size = 1.5,
+                mapping = ggplot2::aes(colour = "liste 2")
             )
     }
 
@@ -415,8 +415,13 @@ cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2
             axis.text = ggplot2::element_blank()
         ) +
         ggplot2::scale_shape_manual(
+            name = "Ouvrage",
             labels = c("non prioritaire", "prioritaire"),
             values = c(21, 24)
+        ) +
+        ggplot2::scale_colour_manual(
+            name = "Classement au titre de\nla continuité écologique",
+            values = "darkred"
         ) +
         ggplot2::guides(
             size = "none",
