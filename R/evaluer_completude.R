@@ -329,7 +329,7 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
 #' @importFrom dplyr filter select mutate case_when left_join arrange
 #' @importFrom ggplot2 ggplot geom_sf aes theme element_blank scale_shape_manual guides guide_legend
 #' @importFrom sf st_as_sf
-cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2 = NULL) {
+cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2 = NULL, limites_zone = NULL, taille_obstacles = 2.5) {
 
     DataCarte <- donnees_bilan %>%
         evaluer_validation() %>%
@@ -368,6 +368,13 @@ cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2
         )
 
     Carte <- ggplot2::ggplot()
+
+    if (!is.null(limites_zone))
+        Carte <- Carte +
+        ggplot2::geom_sf(
+            data = limites_zone,
+            fill = NA
+        )
 
     if (!is.null(reseau_hydro)) {
         Carte <- Carte +
