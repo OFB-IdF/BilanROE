@@ -1,0 +1,332 @@
+---
+title: "exemple"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{exemple}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width=7.25, fig.height = 5
+)
+ rm(read_from_zip)
+```
+
+```{r setup}
+if (!require(devtools))
+  install.packages("devtools")
+
+if (!require(BilanROE))
+  devtools::install_github("CedricMondy/BilanROE")
+if (!require(templatesOFB))
+  devtools::install_github("CedricMondy/templatesOFB")
+
+library(BilanROE)
+library(templatesOFB)
+import::from(magrittr, '%>%')
+```
+
+```{r, include=FALSE}
+temp_loc <- "C:/Users/cedric.mondy/Documents/AFB_OFB/DR_IdF/ContinuiteEcologique/Geobs/ROE/BilanROE/temp"
+```
+
+# Import des données
+
+```{r, include=FALSE, eval=FALSE}
+# Code à exécuter pour récupérer les données, évite de le faire à chaque fois que la vignette est générée
+Bassins <- NULL
+Departements <- c("75", "77", "78", "91", "92", "93", "94", "95")
+
+DonneesBrutes_1 <- importer_donnees(
+    chemin_archive = file.path(temp_loc, "geobs_interne2020_09_22.zip"),
+    bassins = Bassins,
+    departements = Departements
+)
+
+DonneesBrutes_2 <- importer_donnees(
+    chemin_archive = file.path(temp_loc, "geobs_interne2021_03_13_sansRadars.zip"),
+    bassins = Bassins,
+    departements = Departements
+)
+
+DonneesBrutes_3 <- importer_donnees(
+    chemin_archive = file.path(temp_loc, "geobs_interne2021_06_20_sansRadars.zip"),
+    bassins = Bassins,
+    departements = Departements
+)
+
+OuvragesPrioritaires <- readxl::read_xlsx(
+    path = file.path(temp_loc, "200525_ouvrages_prioritaires.xlsx")) %>%
+    dplyr::select(identifiant_roe = `Code ROE`) %>%
+    dplyr::mutate(prioritaire = TRUE)
+
+LimitesZone <- sf::st_read("https://transcode.geo.data.gouv.fr/links/6072fe3dfa4268bc25ce04b0/downloads/6072fe646a65b64ba3a02074?format=GeoJSON&projection=Lambert93") %>% 
+  dplyr::filter(CdRegion == 11)
+
+ReseauHydro <- telecharger_ce_topage(bassin = "03") %>% 
+  rmapshaper::ms_clip(LimitesZone)
+
+Listes2 <- sf::st_read("https://transcode.geo.data.gouv.fr/services/5e97a101fa4268bc25dfa8ef/feature-types/sa:SegClassContinuiteEco_liste2_FXX?format=GeoJSON&projection=Lambert93") %>% 
+  rmapshaper::ms_clip(LimitesZone)
+
+save(
+  DonneesBrutes_1, DonneesBrutes_2, DonneesBrutes_3,
+  OuvragesPrioritaires,
+  LimitesZone,
+  ReseauHydro,
+  Listes2,
+  file = file.path(temp_loc, "data.rda")
+)
+```
+
+```{r, include=FALSE}
+load(file.path(temp_loc, "data.rda"))
+```
+
+## Exports du ROE
+
+Les exports étant nationaux, on peut limiter le chargement des données à certains départements et/ou bassins hydrographiques.
+
+```{r}
+Bassins <- NULL
+Departements <- c("75", "77", "78", "91", "92", "93", "94", "95")
+```
+
+Les données peuvent ensuite être chargées. Pour regarder une évolution des validations, on utilisera au moins deux de ces exports.
+
+```{r, eval=FALSE}
+DonneesBrutes_1 <- importer_donnees(
+    chemin_archive = "chemin_vers_export_1.zip",
+    bassins = Bassins,
+    departements = Departements
+)
+
+DonneesBrutes_2 <- importer_donnees(
+    chemin_archive = "chemin_vers_export_2.zip",
+    bassins = Bassins,
+    departements = Departements
+)
+
+DonneesBrutes_3 <- importer_donnees(
+    chemin_archive = "chemin_vers_export_3.zip",
+    bassins = Bassins,
+    departements = Departements
+)
+
+```
+
+## Autres données
+
+### Liste des ouvrages prioritaires au titre de la continuité écologique
+
+La liste des ouvrages prioritaires au titre de la continuité écologique doit également être importée. Ces données devront se présenter sous la forme d'un tableau avec une colonne contenant le code ROE des ouvrages (`identifiant_roe`) et une colonne `prioritaire` indiquant si oui (`TRUE`) ou non (`FALSE`), les ouvrages sont considérés comme prioritaires.
+
+```{r, eval=FALSE}
+OuvragesPrioritaires <- readxl::read_xlsx(
+    path = "chemin_vers_ouvrages_prioritaires.xlsx") %>%
+    dplyr::select(identifiant_roe = `Code ROE`) %>%
+    dplyr::mutate(prioritaire = TRUE)
+```
+
+### Zone géographique d'intérêt
+
+Il est toujours utile d'avoir les limites géographiques de la zone d'intérêt. Ici, la région d'Île-de-France.
+
+```{r, eval=FALSE}
+LimitesZone <- sf::st_read("https://transcode.geo.data.gouv.fr/links/6072fe3dfa4268bc25ce04b0/downloads/6072fe646a65b64ba3a02074?format=GeoJSON&projection=Lambert93") %>% 
+  dplyr::filter(CdRegion == 11)
+```
+
+### Réseau hydrographique
+
+Le réseau hydrographique de la zone considérée peut être importé pour contextualiser la cartographie des obstacles. Nous récupérons ici la partie de la BD Topage correspondant au bassin Seine-Normandie et ne conservons que les linéaires d'Île-de-France.
+
+```{r, eval=FALSE}
+ReseauHydro <- telecharger_ce_topage(bassin = "03") %>% 
+  rmapshaper::ms_clip(LimitesZone)
+```
+
+```{r, eval=FALSE}
+Listes2 <- sf::st_read("https://transcode.geo.data.gouv.fr/services/5e97a101fa4268bc25dfa8ef/feature-types/sa:SegClassContinuiteEco_liste2_FXX?format=GeoJSON&projection=Lambert93") %>% 
+  rmapshaper::ms_clip(LimitesZone)
+```
+
+# Préparation des données pour faire les bilans
+
+On ne conserve qu'une sélection des champs de l'export auxquels on ajoute l'information sur les ouvrages prioritaires.
+
+```{r}
+OrdreDepartements <- c(
+            "PARIS", "HAUTS-DE-SEINE", "SEINE-SAINT-DENIS", "VAL-DE-MARNE",
+            "ESSONNE", "YVELINES", "VAL-D'OISE", "SEINE-ET-MARNE"
+            )
+
+DonneesBilan_1 <- preparer_donnees_bilan(
+    donnees_brutes = DonneesBrutes_1,
+    ouvrages_prioritaires = OuvragesPrioritaires
+) %>%
+    dplyr::mutate(dept_nom = factor(
+        dept_nom,
+        levels = OrdreDepartements
+        ))
+
+DonneesBilan_2 <- preparer_donnees_bilan(
+    donnees_brutes = DonneesBrutes_2,
+    ouvrages_prioritaires = OuvragesPrioritaires
+) %>%
+    dplyr::mutate(dept_nom = factor(
+        dept_nom,
+        levels = OrdreDepartements
+    ))
+
+DonneesBilan_3 <- preparer_donnees_bilan(
+    donnees_brutes = DonneesBrutes_3,
+    ouvrages_prioritaires = OuvragesPrioritaires
+) %>%
+    dplyr::mutate(dept_nom = factor(
+        dept_nom,
+        levels = OrdreDepartements
+    ))
+
+```
+
+```{r}
+DonneesBilan_3 %>% 
+  dplyr::glimpse()
+```
+
+# Bilans
+
+## Validations
+
+On peut tout d'abord faire le bilan des obstacles en fonction de leur statut de validation (validé, non validé ou gelé). Ce bilan peut être décliné par exemple par département.
+```{r}
+DonneesBilan_3 %>%
+    synthetiser_validation(dept_nom, format = "large")
+```
+
+On peut également représenter sous forme graphique ce bilan, ici de manière globale.
+
+```{r}
+DonneesBilan_3 %>%
+    visualiser_validation()
+```
+
+En utilisant différents exports successifs, on peut également visualiser l'évolution de ces statuts de validation au fil du temps.
+```{r}
+visualiser_evolution_validations(
+    list(
+        "Export 1" = DonneesBilan_1,
+        "Export 2" = DonneesBilan_2,
+        "Export 3" = DonneesBilan_3
+    ),
+    log_y = TRUE
+) +
+    templatesOFB::theme_ofb() +
+    ggplot2::theme(
+        strip.text = ggplot2::element_blank(),
+        panel.grid = ggplot2::element_blank(),
+        panel.background = ggplot2::element_blank(),
+        axis.ticks.x = ggplot2::element_blank(),
+        axis.text.y = ggplot2::element_blank(),
+        axis.ticks.y = ggplot2::element_blank(),
+        axis.line = ggplot2::element_blank()
+    )
+```
+
+## Evolution du nombre d'obstacles validés
+
+On peut représenter l'évolution du nombre d'ouvrage validés en fonction de leur date de validation (ou de modification si obstacles non validés).
+
+```{r}
+DonneesBilan_3 %>%
+    visualiser_evolution_roe(log_y = FALSE, ajuster_xmax = 1.025) +
+    templatesOFB::theme_ofb() +
+    ggplot2::theme(
+        legend.position = "none"
+    )
+```
+
+Cette évolution peut être détaillée par département.
+
+```{r, fig.height=6}
+DonneesBilan_3 %>%
+    visualiser_evolution_roe(dept_nom, log_y = TRUE) +
+    ggplot2::scale_colour_manual(
+        values = c(
+            "PARIS" = templatesOFB::ofb_cols("rouge")[[1]],
+            "SEINE-SAINT-DENIS" = templatesOFB::ofb_cols("rouge")[[1]],
+            "HAUTS-DE-SEINE" = templatesOFB::ofb_cols("rouge")[[1]],
+            "VAL-DE-MARNE" = templatesOFB::ofb_cols("rouge")[[1]],
+            "ESSONNE" = templatesOFB::ofb_cols("bleu1")[[1]],
+            "SEINE-ET-MARNE" = templatesOFB::ofb_cols("vert1")[[1]],
+            "YVELINES" = templatesOFB::ofb_cols("orange2")[[1]],
+            "VAL-D'OISE" = templatesOFB::ofb_cols("orange2")[[1]]
+        )
+    ) +
+    templatesOFB::theme_ofb() +
+    ggplot2::theme(
+        legend.position = "none"
+    )
+```
+
+## Complétude des informations
+
+Le défaut de renseignement des informations obligatoires (coordonnées, nom, type et état), ainsi que de deux informations complémentaires (classe de hauteur de chute et présence d'un dispositif de franchissement piscicole) peut être synthétiser de la façon suivante.
+
+```{r}
+DonneesBilan_3 %>%
+    synthetiser_completude()
+```
+
+Ce bilan peut également être décliné à plusieurs échelles, par exemple en fonction du caractère prioritaire ou non des obstacles.
+
+```{r}
+DonneesBilan_3 %>%
+    synthetiser_completude(prioritaire)
+```
+
+Le détail des informations non renseignées peut être visualisé en utilisant un diagramme de type UpSet. Cela permet de représenter le nombre d'obstacles concernés par les différentes combinaisons d'informations manquantes ainsi que le nombre total d'obstacles pour lesquels chaque information est manquante.
+
+```{r}
+DonneesBilan_3  %>%
+    visualiser_completude(
+        visualiser_prioritaires = TRUE
+    )
+```
+
+Ceci peut également être décliné par département.
+
+```{r, fig.height=13}
+DonneesBilan_3  %>%
+    visualiser_completude(
+        visualiser_prioritaires = FALSE,
+        groupe = dept_nom,
+        nombre_colonnes = 2,
+        nombre_lignes = 4
+    )
+```
+
+```{r}
+DonneesBilan_3 %>%
+        cartographier_completude(
+            reseau_hydro = ReseauHydro,
+            listes2 = Listes2,
+            limites_zone = LimitesZone
+        ) +
+        templatesOFB::theme_ofb() +
+        ggplot2::theme(
+            axis.line = ggplot2::element_blank(),
+            axis.ticks = ggplot2::element_blank(),
+            axis.text = ggplot2::element_blank()
+        ) +
+        templatesOFB::scale_fill_ofb(
+            name = "Information manquante",
+            palette = "principale"
+        ) 
+```
+
