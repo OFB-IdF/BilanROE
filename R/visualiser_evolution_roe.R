@@ -50,7 +50,7 @@ visualiser_evolution_roe <- function(donnees_bilan, groupe = NULL, log_y = FALSE
         ) +
         ggplot2::geom_point(
             data = DonneesTendances %>%
-                dplyr::filter(date == max(date)),
+                dplyr::filter(n_tot == max(n_tot)),
             mapping = ggplot2::aes(y = n_tot),
             colour = "black",
             size = 3
@@ -100,7 +100,7 @@ visualiser_evolution_roe <- function(donnees_bilan, groupe = NULL, log_y = FALSE
                     colour = {{ groupe }}
                 ),
                 hjust = 0,
-                nudge_x = 60,
+                nudge_x = 75,
                 min.segment.length = ggplot2::unit(100, "pt")
             ) +
             ggplot2::theme(legend.position = "none")
