@@ -37,30 +37,9 @@ evaluer_completude <- function(donnees_bilan) {
             )
         )
 
-    # Usages <- donnees_bilan %>%
-    #     dplyr::select(
-    #         identifiant_roe,
-    #         dplyr::starts_with("usage_code")
-    #     ) %>%
-    #     tidyr::pivot_longer(
-    #         cols = dplyr::starts_with("usage_code"),
-    #         names_to = "name",
-    #         values_to = "usage"
-    #     ) %>%
-    #     dplyr::filter(!is.na(usage)) %>%
-    #     dplyr::select(-name) %>%
-    #     dplyr::group_by(identifiant_roe) %>%
-    #     dplyr::summarise(
-    #         usage = paste(
-    #             usage,
-    #             collapse = ", "
-    #             )
-    #         )
-
     donnees_bilan %>%
         dplyr::select(
-            -dplyr::starts_with("fpi_")#,
-            # -dplyr::starts_with("usage_")
+            -dplyr::starts_with("fpi_")
         ) %>%
         dplyr::mutate(
             coordonnees = ifelse(
@@ -73,10 +52,6 @@ evaluer_completude <- function(donnees_bilan) {
             PassesPoisson,
             by = "identifiant_roe"
         ) %>%
-        # dplyr::left_join(
-        #     Usages,
-        #     by = "identifiant_roe"
-        # ) %>%
         dplyr::mutate(
             hauteur_chute_etiage_classe = hauteur_chute_etiage_classe %>%
                 janitor::make_clean_names() %>%
@@ -95,8 +70,7 @@ evaluer_completude <- function(donnees_bilan) {
                     "etat_code",
                     "coordonnees",
                     "hauteur_chute_etiage_classe",
-                    "passe_poisson"#,
-                    # "usage"
+                    "passe_poisson"
                 ),
                 .fns = function(x) {
                     as.numeric(!is.na(x))
@@ -105,31 +79,43 @@ evaluer_completude <- function(donnees_bilan) {
         ) %>%
         dplyr::mutate(
             obligatoire = nom_principal + type_code + etat_code + coordonnees,
-            complementaire = hauteur_chute_etiage_classe + passe_poisson# + usage
+            complementaire = hauteur_chute_etiage_classe + passe_poisson
         )
 
 }
 
-#' Synthétiser l'information sur la complétude des données obligatoires et complémentaires
+#' Synthétiser l'information sur la complétude des données obligatoires et
+#' complémentaires
 #'
-#' L'évaluation de la complétude des informations à l'ouvrage est synthétisée pour les ouvrages validés en comptant le nombre d'ouvrages pour lequel il manque au moins une information obligatoire (nom, type, état et coordonnées) et/ou au moins une information facultative parmi les trois considérées (classe de hauteur de chute, usage et équipement en dispositif de franchissement piscicole).
+#' L'évaluation de la complétude des informations à l'ouvrage est synthétisée en
+#' comptant le nombre d'ouvrages pour lequel il manque au moins une information
+#' obligatoire (nom, type, état et coordonnées) et/ou au moins une information
+#' facultative parmi les deux considérées (classe de hauteur de chute et
+#' équipement en dispositif de franchissement piscicole).
 #'
-#' Le décompte des ouvrages pour lesquels de l'information est manquante peut être réalisé au niveau du jeu de données entier (par défaut), ou au niveau de sous-ensembles en indiquant comme paramètres supplémentaires (`...`), les noms de champs pour lesquels on veut regarder en détail (e.g. dept_nom pour un détail par département, prioritaire pour un détail pour les ouvrages prioritaires ou non). Fournir plusieurs noms de champs à la place de `...` permet de considérer des groupes et sous-groupes définis par les combinaisons de ces champs.
+#' Le décompte des ouvrages non gelés pour lesquels de l'information est
+#' manquante peut être réalisé au niveau du jeu de données entier (par défaut),
+#' ou au niveau de sous-ensembles en indiquant comme paramètres supplémentaires
+#' (`...`), les noms de champs pour lesquels on veut regarder en détail (e.g.
+#' `dept_nom` pour un détail par département, `prioritaire` pour un détail pour
+#' les ouvrages prioritaires ou non). Fournir plusieurs noms de champs à la
+#' place de `...` permet de considérer des groupes et sous-groupes définis par
+#' les combinaisons de ces champs.
 #'
-#' @inheritParams ajouter_listes
-#' @param ... noms des champs (sans "") permettant de définir les groupes pour lesquels on veut le détail
+#' @inheritParams preparer_donnees_bilan
+#' @param ... noms des champs (sans "") permettant de définir les groupes pour
+#'   lesquels on veut le détail
 #'
 #' @return
 #' @export
 #'
-#' @seealso evaluer_completude visualiser_completude
 #' @importFrom dplyr filter select left_join group_by summarise n_distinct
 synthetiser_completude <- function(donnees_bilan, ...) {
     Completude <- evaluer_completude(donnees_bilan)
 
     donnees_bilan %>%
         evaluer_validation() %>%
-        dplyr::filter(validation == "Validé") %>%
+        dplyr::filter(validation != "Gelé") %>%
         dplyr::select(identifiant_roe, ...) %>%
         dplyr::left_join(
             Completude,
