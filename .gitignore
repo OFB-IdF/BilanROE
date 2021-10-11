@@ -2,7 +2,3 @@
 .Rhistory
 .RData
 .Ruserdata
-
-*.zip
-
-inst/doc

@@ -21,7 +21,7 @@ if (!require(devtools))
   install.packages("devtools")
 
 if (!require(BilanROE))
-  devtools::install_github("CedricMondy/BilanROE")
+  devtools::install_github("CedricMondy/BilanROE", build_vignettes = TRUE)
 if (!require(templatesOFB))
   devtools::install_github("CedricMondy/templatesOFB")
 
