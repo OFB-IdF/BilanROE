@@ -139,90 +139,115 @@ visualiser_validation <- function(donnees_bilan, groupe = NULL) {
         ggplot2::theme(legend.position = "bottom")
 }
 
-#' Visualiser l'évolution du nombre d'obstacles validés, non validés ou gelés
+#' Mettre un tableau de données dans un format adapté à la production de
+#' diagramme de Sankey avec {ggalluvial}
 #'
-#' Cette fonction utilise des bilans réalisés à différentes dates pour suivre l'évolution du statut de validation des obstacles.
+#' Le format de données requis pour construire un diagramme de Sankey est
+#' particulier puisqu'il doit permettre de suivre l'appartenance d'individus à
+#' des groupes entre plusieurs étapes. Cette fonction permet de gérer le
+#' formatage d'un tableau de données au format 'tidy' pour pouvoir être utilisé
+#' pour produire un diagramme de Sankey.
 #'
-#' @param liste_bilans une liste de tableaux obtenus avec la fonction [preparer_donnees_bilan()]. Cette liste doit être nommée (e.g. avec les dates des exports correspondants aux différents tableaux de bilan) et les éléments de cette liste classés dans l'ordre dans lequel on veut les afficher.
-#' @inheritParams synthetiser_completude
-#' @inheritParams visualiser_evolution_roe
+#' @param donnees tableau à mettre en forme
+#' @param etape nom de la colonne correspondant à la variable selon laquelle on
+#'   veut suivre les évolutions (dates, ...)
+#' @param individu nom de la colonne correspondant aux identifiants uniques des
+#'   'individus'
+#' @param groupe nom de la colonne correspondant aux groupes auxquels les
+#'   individus appartiennent. L'appartenance d'un individu à un groupe peut
+#'   changer en fonction de `x`
+#' @param ... noms des colonnes pour lesquels on veut détailler les flux
+#'   (sous-ensembles des données)
 #'
-#'
-#' @return
 #' @export
 #'
-#' @examples
+#' @importFrom dplyr mutate left_join group_by summarise n_distinct ungroup
+#' @importFrom rlang expr_name enquo
+#' @importFrom sf st_drop_geometry
+#' @importFrom stringr str_remove
+preparer_donnees_sankey <- function(donnees, etape, individu, groupe, ...) {
+    donnees %>%
+        (function(df) {
+            if ("sf" %in% class(df)) {
+                sf::st_drop_geometry(df)
+            } else {
+                df
+            }
+        }) %>%
+        dplyr::mutate(
+            etape = factor(
+                as.character({{etape}}),
+                levels = unique(as.character({{etape}}))
+            )
+        ) %>%
+        (function(df) {
+            dplyr::left_join(
+                df,
+                df %>%
+                    dplyr::group_by({{individu}}) %>%
+                    dplyr::summarise(sequence = paste0({{groupe}}, collapse = "->")),
+                by = rlang::expr_name(rlang::enquo(individu)) %>%
+                    stringr::str_remove(pattern = "~")
+            )
+        }) %>%
+        dplyr::group_by(
+            etape,
+            sequence,
+            {{groupe}},
+            ...
+        ) %>%
+        dplyr::summarise(
+            nombre = dplyr::n_distinct({{individu}}),
+            .groups = "drop"
+        ) %>%
+        dplyr::group_by(
+            etape,
+            {{groupe}},
+            ...
+        ) %>%
+        dplyr::mutate(
+            label = sum(nombre)
+        ) %>%
+        dplyr::ungroup()
+}
+
+#' Visualiser les changements de groupes d'individus en fonction d'étapes à
+#' l'aide d'un diagramme de Sankey
+#'
+#' @param df tableau mis en forme à l'aide de la fonction
+#'   [preparer_donnees_sankey()]
+#' @inheritParams preparer_donnees_sankey
+#' @param text_size taille du texte affichant les nombres d'individu par groupe
+#' @param log_y valeur logique (TRUE/FALSE): les comptes d'individus doivent-ils
+#'   être exprimés en log ou non. Peut être utile pour suivre l'évolution des
+#'   groupes à faibles effectifs
+#'
+#' @export
+#'
+#' @importFrom ggalluvial geom_flow geom_stratum
+#' @importFrom ggplot2 ggplot aes scale_x_discrete geom_text facet_wrap vars
+#'   labs theme element_blank scale_y_log10
 #' @importFrom withr with_package
-#' @importFrom dplyr mutate left_join group_by summarise n_distinct
-#' @importFrom ggalluvial geom_flow geom_stratum StatStratum
-#' @importFrom ggplot2 ggplot aes scale_x_discrete geom_text facet_wrap vars scale_fill_manual labs theme element_blank scale_y_log10
-#' @importFrom purrr map2_df
-visualiser_evolution_validations <- function(liste_bilans, ..., log_y = FALSE) {
+visualiser_sankey <- function(df, etape, groupe, text_size = 3, log_y = FALSE, ...) {
     withr::with_package(
         package = "ggalluvial",
         code = {
-            EvolutionValidations <- purrr::map2_df(
-                .x = liste_bilans,
-                .y = names(liste_bilans),
-                .f = function(x = .x, y = .y) {
-                    dplyr::mutate(x, index = y)
-                }
-            ) %>%
-                dplyr::mutate(
-                    index = factor(index, levels = names(liste_bilans))
-                ) %>%
-                evaluer_validation() %>%
-                (function(df) {
-                    dplyr::left_join(
-                        df,
-                        df %>%
-                            dplyr::group_by(identifiant_roe) %>%
-                            dplyr::summarise(sequence = paste0(validation, collapse = "->")),
-                        by = "identifiant_roe"
-                    )
-                }) %>%
-                dplyr::group_by(
-                    index,
-                    sequence,
-                    validation,
-                    ...
-                ) %>%
-                dplyr::summarise(
-                    nombre_obstacles = dplyr::n_distinct(identifiant_roe),
-                    .groups = "drop"
-                ) %>%
-                dplyr::group_by(
-                    index,
-                    validation,
-                    ...
-                ) %>%
-                dplyr::mutate(
-                    label = sum(nombre_obstacles)
-                ) %>%
+            gg <- df %>%
                 ggplot2::ggplot(
-                    ggplot2::aes(x = index,
-                                 stratum = validation,
+                    ggplot2::aes(x = {{etape}},
+                                 stratum = {{groupe}},
                                  alluvium = sequence,
-                                 y = nombre_obstacles,
-                                 fill = validation,
+                                 y = nombre,
+                                 fill = {{groupe}},
                                  label = label)) +
                 ggplot2::scale_x_discrete(expand = c(.1, .1)) +
                 ggalluvial::geom_flow() +
                 ggalluvial::geom_stratum(alpha = .5, colour = NA) +
-                ggplot2::geom_text(stat = "stratum", size = 3) +
+                ggplot2::geom_text(stat = "stratum", size = text_size) +
                 ggplot2::facet_wrap(facets = ggplot2::vars(...),
-                                    scales=  "free_y") +
-                ggplot2::scale_fill_manual(
-                    name = "",
-                    values = c(
-                        `Validé` = "#6495ED",
-                        `Non validé` = "#F08080",
-                        `Gelé` = "#C1CDCD"
-                    )
-                ) +
+                                    scales=  "free_y", drop = TRUE) +
                 ggplot2::labs(x = "", y = "") +
                 ggplot2::theme(
-                    # legend.position = "none",
                     panel.grid = ggplot2::element_blank(),
                     panel.background = ggplot2::element_blank(),
                     axis.ticks.x = ggplot2::element_blank(),
@@ -231,12 +256,65 @@ visualiser_evolution_validations <- function(liste_bilans, ..., log_y = FALSE) {
                 )
 
             if (log_y) {
-                EvolutionValidations +
+                gg +
                     ggplot2::scale_y_log10()
             } else {
-                EvolutionValidations
+                gg
             }
+        })
+
+}
+
+#' Visualiser l'évolution du nombre d'obstacles validés, non validés ou gelés
+#'
+#' Cette fonction utilise des bilans réalisés à différentes dates pour suivre
+#' l'évolution du statut de validation des obstacles.
+#'
+#' @param liste_bilans une liste de tableaux obtenus avec la fonction
+#'   [preparer_donnees_bilan()]. Cette liste doit être nommée (e.g. avec les
+#'   dates des exports correspondants aux différents tableaux de bilan) et les
+#'   éléments de cette liste classés dans l'ordre dans lequel on veut les
+#'   afficher.
+#' @inheritParams visualiser_sankey
+#'
+#' @export
+#'
+#' @importFrom dplyr mutate
+#' @importFrom ggplot2 scale_fill_manual
+#' @importFrom purrr map2_df
+visualiser_evolution_validations <- function(liste_bilans, ..., log_y = FALSE, text_size = 3) {
+
+    if (length(liste_bilans) < 2)
+        stop("Au moins deux bilans doivent être fournis")
+
+    purrr::map2_df(
+        .x = liste_bilans,
+        .y = names(liste_bilans),
+        .f = function(x = .x, y = .y) {
+            dplyr::mutate(x, etape = y)
         }
-    )
+    ) %>%
+        evaluer_validation() %>%
+        preparer_donnees_sankey(
+            etape = etape,
+            individu = identifiant_roe,
+            groupe = validation,
+            ...
+        ) %>%
+        visualiser_sankey(
+            etape = etape,
+            groupe = validation,
+            text_size = text_size,
+            log_y = log_y,
+            ...
+        ) +
+        ggplot2::scale_fill_manual(
+            name = "",
+            values = c(
+                `Gelé` = "#C1CDCD",
+                `Non validé` = "#F08080",
+                `Validé` = "#6495ED"
+            )
+        )
 
 }
