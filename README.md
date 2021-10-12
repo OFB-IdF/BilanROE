@@ -11,8 +11,7 @@ if (!require(remotes))
 remotes::install_gitlab(
     repo = "cedric.mondy/bilanroe",
     host = "https://gitlab.afbiodiversite.fr", 
-    dependencies = TRUE, 
-    build_vignettes = TRUE
+    dependencies = TRUE
     )
 
 ```
