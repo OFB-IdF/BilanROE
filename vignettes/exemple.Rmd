@@ -281,7 +281,8 @@ DonneesBilan_3  %>%
 
 ```{r}
 DonneesBilan_3 %>%
-        cartographier_completude(
+  preparer_donnees_carte_completude() %>% 
+  cartographier_completude(
             reseau_hydro = ReseauHydro,
             listes2 = Listes2,
             limites_zone = LimitesZone

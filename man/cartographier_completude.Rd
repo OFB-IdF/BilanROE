@@ -5,7 +5,7 @@
 \title{Cartographier la complétude des informations obligatoires et complémentaires}
 \usage{
 cartographier_completude(
-  donnees_bilan,
+  donnees_carte,
   reseau_hydro = NULL,
   listes2 = NULL,
   limites_zone = NULL,
@@ -24,6 +24,8 @@ représentée (région, département...). Par défaut, n'est pas affiché (NULL)
 
 \item{taille_obstacles}{taille des figurés représentant les obstacles
 (défaut: 2.5)}
+
+\item{donnees_carto}{données obtenues avec la fonction \code{\link[=preparer_donnees_carte_completude]{preparer_donnees_carte_completude()}}}
 }
 \description{
 Localise sur une carte les obstacles non gelés et pour lesquels on dispose au

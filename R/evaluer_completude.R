@@ -343,34 +343,17 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
         patchwork::wrap_plots(nrow = nombre_lignes, ncol = nombre_colonnes)
 }
 
-#' Cartographier la complétude des informations obligatoires et complémentaires
+#' Préparer les données cartographiques résumant la complétude des informations
 #'
-#' Localise sur une carte les obstacles non gelés et pour lesquels on dispose au
-#' moins des coordonnées géographiques. La symbologie utilisée permet
-#' d'identifier les ouvrages considérés comme prioritaires ainsi que le type
-#' d'information manquante parmi les trois informations obligatoires (nom, type
-#' et état de l'ouvrage) et deux informations complémentaires (classe de hauteur
-#' de chute et équipement en dispositif de franchissement piscicole).
+#' Prépare un tableau spatialisé résumant pour chaque obstacle le nombre
+#' d'informations obligatoires et complémentaires manquantes.
 #'
 #' @inheritParams preparer_donnees_bilan
-#' @param reseau_hydro données spatiales (classe `sf`) du réseau hydrographique.
-#'   Par défaut, n'est pas affiché (NULL)
-#' @param listes2 données spatiales (classe `sf`) de la partie du réseau.Par
-#'   défaut, n'est pas affiché (NULL) hydrographique classé en liste 2
-#' @param limites_zone données spatiales (classe `sf`) des limites de la zone
-#'   représentée (région, département...). Par défaut, n'est pas affiché (NULL)
-#' @param taille_obstacles taille des figurés représentant les obstacles
-#'   (défaut: 2.5)
 #'
 #' @export
 #'
-#' @importFrom dplyr filter select mutate case_when left_join arrange
-#' @importFrom ggplot2 ggplot geom_sf aes theme element_blank scale_shape_manual
-#'   scale_colour_manual guides guide_legend
-#' @importFrom sf st_as_sf
-cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2 = NULL, limites_zone = NULL, taille_obstacles = 2.5) {
-
-    DataCarte <- donnees_bilan %>%
+preparer_donnees_carte_completude <- function(donnees_bilan) {
+    donnees_bilan %>%
         evaluer_validation() %>%
         dplyr::filter(validation != "Gelé") %>%
         evaluer_completude() %>%
@@ -405,6 +388,33 @@ cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2
             coords = c("x_l93", "y_l93"),
             crs = 2154
         )
+}
+#' Cartographier la complétude des informations obligatoires et complémentaires
+#'
+#' Localise sur une carte les obstacles non gelés et pour lesquels on dispose au
+#' moins des coordonnées géographiques. La symbologie utilisée permet
+#' d'identifier les ouvrages considérés comme prioritaires ainsi que le type
+#' d'information manquante parmi les trois informations obligatoires (nom, type
+#' et état de l'ouvrage) et deux informations complémentaires (classe de hauteur
+#' de chute et équipement en dispositif de franchissement piscicole).
+#'
+#' @param donnees_carto données obtenues avec la fonction [preparer_donnees_carte_completude()]
+#' @param reseau_hydro données spatiales (classe `sf`) du réseau hydrographique.
+#'   Par défaut, n'est pas affiché (NULL)
+#' @param listes2 données spatiales (classe `sf`) de la partie du réseau.Par
+#'   défaut, n'est pas affiché (NULL) hydrographique classé en liste 2
+#' @param limites_zone données spatiales (classe `sf`) des limites de la zone
+#'   représentée (région, département...). Par défaut, n'est pas affiché (NULL)
+#' @param taille_obstacles taille des figurés représentant les obstacles
+#'   (défaut: 2.5)
+#'
+#' @export
+#'
+#' @importFrom dplyr filter select mutate case_when left_join arrange
+#' @importFrom ggplot2 ggplot geom_sf aes theme element_blank scale_shape_manual
+#'   scale_colour_manual guides guide_legend
+#' @importFrom sf st_as_sf
+cartographier_completude <- function(donnees_carte, reseau_hydro = NULL, listes2 = NULL, limites_zone = NULL, taille_obstacles = 2.5) {
 
     Carte <- ggplot2::ggplot()
 
@@ -434,11 +444,11 @@ cartographier_completude <- function(donnees_bilan, reseau_hydro = NULL, listes2
     }
 
     for (i in c("aucune", "complémentaire", "obligatoire")) {
-        if (nrow(DataCarte %>%
+        if (nrow(donnees_carte %>%
                  dplyr::filter(info_manquante == i)) > 0)
             Carte <- Carte +
                 ggplot2::geom_sf(
-                    data = DataCarte %>%
+                    data = donnees_carte %>%
                         dplyr::filter(info_manquante == i),
                     mapping = ggplot2::aes(
                         shape = ouvrage,
