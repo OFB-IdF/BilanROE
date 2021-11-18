@@ -4,7 +4,7 @@
 #' faire la distinction entre point par point et par échantillonnage), gelé ou
 #' non validé.
 #'
-#' @inheritParams preparer_donnees_bilan
+#' @inheritParams evaluer_completude
 #'
 #' @export
 #'

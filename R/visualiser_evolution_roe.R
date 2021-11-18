@@ -4,7 +4,7 @@
 #' d'ouvrages dans le ROE. Cette évolution peut être déclinée par une variable
 #' de regroupement des ouvrages (e.g. par département).
 #'
-#' @inheritParams preparer_donnees_bilan
+#' @inheritParams evaluer_completude
 #' @param log_y valeur logique (TRUE/FALSE) pour exprimer ou non l'axe des y
 #'   (nombre d'obstacles validés) avec une échelle logarithmique
 #' @param ajuster_xmax valeur numérique par laquelle le maximum de l'axe x est

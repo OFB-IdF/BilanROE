@@ -13,7 +13,8 @@
 #' considérées comme une information unique) et complémentaire renseignées sont
 #' également calculés.
 #'
-#' @inheritParams preparer_donnees_bilan
+#' @param donnees_bilan sélection des données exportées utilisées pour réaliser
+#'   des bilans, obtenue avec la fonction [preparer_donnees_bilan()].
 #'
 #' @export
 #'
@@ -109,7 +110,7 @@ evaluer_completude <- function(donnees_bilan) {
 #' place de `...` permet de considérer des groupes et sous-groupes définis par
 #' les combinaisons de ces champs.
 #'
-#' @inheritParams preparer_donnees_bilan
+#' @inheritParams evaluer_completude
 #' @param ... noms des champs (sans "") permettant de définir les groupes pour
 #'   lesquels on veut le détail
 #'
@@ -148,7 +149,7 @@ synthetiser_completude <- function(donnees_bilan, ...) {
 #' Cette répartition peut être déclinée par une variable de regroupement des
 #' ouvrages (e.g. par département)
 #'
-#' @inheritParams preparer_donnees_bilan
+#' @inheritParams evaluer_completude
 #' @param groupe nom de la colonne pour laquelle on veut voir le détail
 #' @param visualiser_prioritaires valeur logique (TRUE/FALSE) contrôlant si le
 #'   détail du nombre d'ouvrage est afficher en différenciant les ouvrages
@@ -348,7 +349,7 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
 #' Prépare un tableau spatialisé résumant pour chaque obstacle le nombre
 #' d'informations obligatoires et complémentaires manquantes.
 #'
-#' @inheritParams preparer_donnees_bilan
+#' @inheritParams evaluer_completude
 #'
 #' @export
 #'
@@ -398,7 +399,7 @@ preparer_donnees_carte_completude <- function(donnees_bilan) {
 #' et état de l'ouvrage) et deux informations complémentaires (classe de hauteur
 #' de chute et équipement en dispositif de franchissement piscicole).
 #'
-#' @param donnees_carto données obtenues avec la fonction [preparer_donnees_carte_completude()]
+#' @param donnees_carte données obtenues avec la fonction [preparer_donnees_carte_completude()]
 #' @param reseau_hydro données spatiales (classe `sf`) du réseau hydrographique.
 #'   Par défaut, n'est pas affiché (NULL)
 #' @param listes2 données spatiales (classe `sf`) de la partie du réseau.Par
