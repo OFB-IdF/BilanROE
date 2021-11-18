@@ -58,7 +58,6 @@ selectionner_donnees_bilan <- function(donnees_brutes) {
 #'
 #' @return un tableau de données contenant les informations de l'export du ROE
 #'   complété par le statut prioritaire ou non des ouvrages.
-#' @export
 #'
 #' @importFrom dplyr left_join select mutate
 #' @importFrom stringr str_replace_na
@@ -78,6 +77,7 @@ ajouter_prioritaires <- function(donnees_bilan, ouvrages_prioritaires) {
         )
 }
 
+
 #' Préparer les données pour faire le bilan
 #'
 #' Cette fonction est juste un 'wrapper' d'autres fonctions du package pour
@@ -92,9 +92,26 @@ ajouter_prioritaires <- function(donnees_bilan, ouvrages_prioritaires) {
 #'   préparées et complétées par le statut prioritaire ou non des ouvrages.
 #' @export
 #'
+#' @importFrom sf st_as_sf st_join st_drop_geometry
 preparer_donnees_bilan <- function(donnees_brutes,
-                                   ouvrages_prioritaires) {
-    donnees_brutes %>%
-        selectionner_donnees_bilan() %>%
+                                   ouvrages_prioritaires = NULL,
+                                   masses_eau = NULL) {
+    DonneesBilan <- donnees_brutes %>%
+        selectionner_donnees_bilan()
+
+    if (!is.null(ouvrages_prioritaires))
+        DonneesBilan <- DonneesBilan %>%
         ajouter_prioritaires(ouvrages_prioritaires)
+
+    if (!is.null(masses_eau))
+        DonneesBilan <- DonneesBilan %>%
+            sf::st_as_sf(
+                coords = c("x_l93", "y_l93"),
+                crs = 2154,
+                remove = FALSE
+            ) %>%
+            sf::st_join(masses_eau) %>%
+            sf::st_drop_geometry()
+
+    DonneesBilan
 }
