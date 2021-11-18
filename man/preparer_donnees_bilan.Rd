@@ -4,7 +4,11 @@
 \alias{preparer_donnees_bilan}
 \title{Préparer les données pour faire le bilan}
 \usage{
-preparer_donnees_bilan(donnees_brutes, ouvrages_prioritaires)
+preparer_donnees_bilan(
+  donnees_brutes,
+  ouvrages_prioritaires = NULL,
+  masses_eau = NULL
+)
 }
 \arguments{
 \item{donnees_brutes}{tableau de données obtenu avec la fonction

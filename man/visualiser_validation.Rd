@@ -7,6 +7,9 @@
 visualiser_validation(donnees_bilan, groupe = NULL)
 }
 \arguments{
+\item{donnees_bilan}{sélection des données exportées utilisées pour réaliser
+des bilans, obtenue avec la fonction \code{\link[=preparer_donnees_bilan]{preparer_donnees_bilan()}}.}
+
 \item{groupe}{nom de la colonne pour laquelle on veut voir le détail}
 }
 \description{

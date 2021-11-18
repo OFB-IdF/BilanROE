@@ -6,6 +6,10 @@
 \usage{
 preparer_donnees_carte_completude(donnees_bilan)
 }
+\arguments{
+\item{donnees_bilan}{sélection des données exportées utilisées pour réaliser
+des bilans, obtenue avec la fonction \code{\link[=preparer_donnees_bilan]{preparer_donnees_bilan()}}.}
+}
 \description{
 Prépare un tableau spatialisé résumant pour chaque obstacle le nombre
 d'informations obligatoires et complémentaires manquantes.

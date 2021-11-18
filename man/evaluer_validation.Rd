@@ -6,6 +6,10 @@
 \usage{
 evaluer_validation(donnees_bilan)
 }
+\arguments{
+\item{donnees_bilan}{sélection des données exportées utilisées pour réaliser
+des bilans, obtenue avec la fonction \code{\link[=preparer_donnees_bilan]{preparer_donnees_bilan()}}.}
+}
 \description{
 Cette fonction permet d'évaluer simplement si un ouvrage est validé (sans
 faire la distinction entre point par point et par échantillonnage), gelé ou

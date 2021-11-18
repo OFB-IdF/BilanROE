@@ -15,12 +15,5 @@ un tableau de données ne contenant que la sélection de champs de
 l'export qui sont utilisés par les fonctions de {BilanROE}
 }
 \description{
-Sur les 107 champs compris dans l'export, 32 sont conservés pour réaliser le
-bilan. Les champs conservés concernent: 1. l'identité de l'ouvrage: nom et
-code ROE 2. la localisation de l'ouvrage: département, commune et coordonnées
-3. la position de l'ouvrage dans le réseau hydrographique: bassin, tronçons
-des BD Carthage et Topo 4. des informations sur l'historique de saisie de
-l'ouvrage: statut de la fiche, dates de modification et de validation 5.
-l'état de l'ouvrage 6. le type principal de l'ouvrage 7. la hauteur de chute
-8. la présence de dispositifs de franchissement piscicole
+Sélectionne les champs de l'export qui seront utilisés pour réaliser le bilan
 }

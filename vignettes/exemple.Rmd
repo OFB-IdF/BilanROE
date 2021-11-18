@@ -95,8 +95,7 @@ OuvragesPrioritaires <- readxl::read_xlsx(
 Il est toujours utile d'avoir les limites géographiques de la zone d'intérêt. Ici, la région d'Île-de-France.
 
 ```{r, eval=FALSE}
-LimitesZone <- sf::st_read("https://transcode.geo.data.gouv.fr/links/6072fe3dfa4268bc25ce04b0/downloads/6072fe646a65b64ba3a02074?format=GeoJSON&projection=Lambert93") %>% 
-  dplyr::filter(CdRegion == 11)
+LimitesZone <- telecharger_limites_region(codes_region = "11")
 ```
 
 ### Réseau hydrographique
@@ -104,13 +103,16 @@ LimitesZone <- sf::st_read("https://transcode.geo.data.gouv.fr/links/6072fe3dfa4
 Le réseau hydrographique de la zone considérée peut être importé pour contextualiser la cartographie des obstacles. Nous récupérons ici la partie de la BD Topage correspondant au bassin Seine-Normandie et ne conservons que les linéaires d'Île-de-France.
 
 ```{r, eval=FALSE}
-ReseauHydro <- telecharger_ce_topage(bassin = "03") %>% 
-  rmapshaper::ms_clip(LimitesZone)
+ReseauHydro <- telecharger_ce_topage(bassin = "03", limites_zone = LimitesZone)
+```
+
+Nous récupérons également les limites des masses d'eau.
+```{r, eval=FALSE}
+MassesEau <- telecharger_masses_eau(limites_zone = LimitesZone)
 ```
 
 ```{r, eval=FALSE}
-Listes2 <- sf::st_read("https://transcode.geo.data.gouv.fr/services/5e97a101fa4268bc25dfa8ef/feature-types/sa:SegClassContinuiteEco_liste2_FXX?format=GeoJSON&projection=Lambert93") %>% 
-  rmapshaper::ms_clip(LimitesZone)
+Listes2 <- telecharger_listes2(limites_zone = LimitesZone)
 ```
 
 ```{r, include=FALSE}
@@ -120,6 +122,7 @@ DonneesBrutes_3 <- BilanROE:::DonneesBrutes_3
 OuvragesPrioritaires <- BilanROE:::OuvragesPrioritaires
 LimitesZone <- BilanROE:::LimitesZone
 ReseauHydro <- BilanROE:::ReseauHydro
+MassesEau <- BilanROE:::MassesEau
 Listes2 <- BilanROE:::Listes2
 ```
 
@@ -135,7 +138,8 @@ OrdreDepartements <- c(
 
 DonneesBilan_1 <- preparer_donnees_bilan(
     donnees_brutes = DonneesBrutes_1,
-    ouvrages_prioritaires = OuvragesPrioritaires
+    ouvrages_prioritaires = OuvragesPrioritaires,
+    masses_eau = regrouper_masses_eau(MassesEau)
 ) %>%
     dplyr::mutate(dept_nom = factor(
         dept_nom,
@@ -144,7 +148,8 @@ DonneesBilan_1 <- preparer_donnees_bilan(
 
 DonneesBilan_2 <- preparer_donnees_bilan(
     donnees_brutes = DonneesBrutes_2,
-    ouvrages_prioritaires = OuvragesPrioritaires
+    ouvrages_prioritaires = OuvragesPrioritaires,
+    masses_eau = regrouper_masses_eau(MassesEau)
 ) %>%
     dplyr::mutate(dept_nom = factor(
         dept_nom,
@@ -153,7 +158,8 @@ DonneesBilan_2 <- preparer_donnees_bilan(
 
 DonneesBilan_3 <- preparer_donnees_bilan(
     donnees_brutes = DonneesBrutes_3,
-    ouvrages_prioritaires = OuvragesPrioritaires
+    ouvrages_prioritaires = OuvragesPrioritaires,
+    masses_eau = regrouper_masses_eau(MassesEau)
 ) %>%
     dplyr::mutate(dept_nom = factor(
         dept_nom,
@@ -297,5 +303,15 @@ DonneesBilan_3 %>%
             name = "Information manquante",
             palette = "principale"
         ) 
+```
+
+```{r, eval = FALSE}
+DonneesBilan_3 %>%
+  generer_fiches_terrain(
+    date_export = "2021", 
+    codes_roe = NULL,
+    dossier_sortie = "chemin/dossier",
+    sous_dossiers = c("dept_nom", "nom_ce")
+  )
 ```
 

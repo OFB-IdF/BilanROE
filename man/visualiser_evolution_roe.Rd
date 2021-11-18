@@ -12,6 +12,9 @@ visualiser_evolution_roe(
 )
 }
 \arguments{
+\item{donnees_bilan}{sélection des données exportées utilisées pour réaliser
+des bilans, obtenue avec la fonction \code{\link[=preparer_donnees_bilan]{preparer_donnees_bilan()}}.}
+
 \item{log_y}{valeur logique (TRUE/FALSE) pour exprimer ou non l'axe des y
 (nombre d'obstacles validés) avec une échelle logarithmique}
 

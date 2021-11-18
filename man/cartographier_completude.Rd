@@ -13,6 +13,8 @@ cartographier_completude(
 )
 }
 \arguments{
+\item{donnees_carte}{données obtenues avec la fonction \code{\link[=preparer_donnees_carte_completude]{preparer_donnees_carte_completude()}}}
+
 \item{reseau_hydro}{données spatiales (classe \code{sf}) du réseau hydrographique.
 Par défaut, n'est pas affiché (NULL)}
 
@@ -24,8 +26,6 @@ représentée (région, département...). Par défaut, n'est pas affiché (NULL)
 
 \item{taille_obstacles}{taille des figurés représentant les obstacles
 (défaut: 2.5)}
-
-\item{donnees_carto}{données obtenues avec la fonction \code{\link[=preparer_donnees_carte_completude]{preparer_donnees_carte_completude()}}}
 }
 \description{
 Localise sur une carte les obstacles non gelés et pour lesquels on dispose au

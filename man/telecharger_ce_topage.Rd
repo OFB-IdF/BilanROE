@@ -2,15 +2,18 @@
 % Please edit documentation in R/importer_donnees.R
 \name{telecharger_ce_topage}
 \alias{telecharger_ce_topage}
-\title{Télécharger les données cours d'eau de la BD Topage 2019}
+\title{Télécharger les données cours d'eau de la BD Topage 2019 (flux Sandre)}
 \usage{
-telecharger_ce_topage(bassin = 99)
+telecharger_ce_topage(bassin = 99, limites_zone = NULL)
 }
 \arguments{
 \item{bassin}{code du ou des bassins hydrographiques dont on veut télécharger
 le référentiel: - 01: Artois-Picardie - 02: Rhin-Meuse - 03:
 Seine-Normandie - 04: Loire-Bretagne - 05: Adour-Garonne - 06:
 Rhône-Méditerranée - 12: Corse - 99: France entière}
+
+\item{limites_zone}{couche spatiale de type (multi)polygone délimitant l'aire
+d'intérêt.}
 }
 \value{
 un tableau spatial (classe \code{sf}) contenant le référentiel
@@ -19,5 +22,5 @@ hydrographique du bassin hydrographique sélectionné.
 \description{
 Permet de télécharger soit l'ensemble du référentiel cours d'eau de la BD
 Topage pour la France continentale et la corse (\code{bassin = 99}), soit un ou
-plusieurs bassins hydrographiques en utilisant les services web du Sandre.
+plusieurs bassins hydrographiques.
 }

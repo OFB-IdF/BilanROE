@@ -6,6 +6,10 @@
 \usage{
 evaluer_completude(donnees_bilan)
 }
+\arguments{
+\item{donnees_bilan}{sélection des données exportées utilisées pour réaliser
+des bilans, obtenue avec la fonction \code{\link[=preparer_donnees_bilan]{preparer_donnees_bilan()}}.}
+}
 \description{
 Cette fonction permet d'évaluer pour chaque ouvrage la complétion de
 l'information pour les champs obligatoires (nom, type, état et coordonnées)

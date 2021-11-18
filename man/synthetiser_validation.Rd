@@ -7,6 +7,9 @@
 synthetiser_validation(donnees_bilan, ..., format = "long")
 }
 \arguments{
+\item{donnees_bilan}{sélection des données exportées utilisées pour réaliser
+des bilans, obtenue avec la fonction \code{\link[=preparer_donnees_bilan]{preparer_donnees_bilan()}}.}
+
 \item{...}{noms des champs (sans "") permettant de définir les groupes pour
 lesquels on veut le détail}
 
