@@ -17,11 +17,15 @@ Imports:
     ggrepel,
     ggtext,
     ggupset,
+    httr,
     janitor,
     lubridate,
+    openxlsx,
     patchwork,
+    progress,
     purrr,
     rlang,
+    rmapshaper,
     sf,
     stringr,
     tidyr,
@@ -32,7 +36,8 @@ Suggests:
     import,
     knitr,
     remotes,
-    rmarkdown
+    rmarkdown,
+    templatesOFB
 VignetteBuilder: 
     knitr
 Encoding: UTF-8
