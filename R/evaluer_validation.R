@@ -287,7 +287,7 @@ visualiser_evolution_validations <- function(liste_bilans, ..., log_y = FALSE, t
     if (length(liste_bilans) < 2)
         stop("Au moins deux bilans doivent être fournis")
 
-    purrr::map2_df(
+    gg <- purrr::map2_df(
         .x = liste_bilans,
         .y = names(liste_bilans),
         .f = function(x = .x, y = .y) {
@@ -315,6 +315,21 @@ visualiser_evolution_validations <- function(liste_bilans, ..., log_y = FALSE, t
                 `Non validé` = "#F08080",
                 `Validé` = "#6495ED"
             )
+        ) +
+        ggplot2::theme(
+            panel.grid = ggplot2::element_blank(),
+            panel.background = ggplot2::element_blank(),
+            axis.ticks.x = ggplot2::element_blank(),
+            axis.text.y = ggplot2::element_blank(),
+            axis.ticks.y = ggplot2::element_blank(),
+            axis.line = ggplot2::element_blank()
         )
 
+    if (length(ggplot2::vars(...)) == 0)
+        gg <- gg +
+            ggplot2::theme(
+                strip.text = ggplot2::element_blank()
+            )
+
+    gg
 }
