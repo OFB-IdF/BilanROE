@@ -459,11 +459,7 @@ cartographier_completude <- function(donnees_carte, reseau_hydro = NULL, listes2
     }
 
     Carte +
-        ggplot2::theme(
-            axis.line = ggplot2::element_blank(),
-            axis.ticks = ggplot2::element_blank(),
-            axis.text = ggplot2::element_blank()
-        ) +
+        ggplot2::theme_void() +
         ggplot2::scale_shape_manual(
             name = "Ouvrage",
             labels = c("non prioritaire", "prioritaire"),
