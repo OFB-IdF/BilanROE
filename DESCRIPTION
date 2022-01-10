@@ -36,8 +36,7 @@ Suggests:
     import,
     knitr,
     remotes,
-    rmarkdown,
-    templatesOFB
+    rmarkdown
 VignetteBuilder: 
     knitr
 Encoding: UTF-8
