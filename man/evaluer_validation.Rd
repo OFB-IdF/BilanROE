@@ -2,7 +2,7 @@
 % Please edit documentation in R/evaluer_validation.R
 \name{evaluer_validation}
 \alias{evaluer_validation}
-\title{Evaluer la validation des fiches ouvrages}
+\title{Evaluer la validation et la complétude des fiches ouvrages}
 \usage{
 evaluer_validation(donnees_bilan)
 }
@@ -11,7 +11,7 @@ evaluer_validation(donnees_bilan)
 des bilans, obtenue avec la fonction \code{\link[=preparer_donnees_bilan]{preparer_donnees_bilan()}}.}
 }
 \description{
-Cette fonction permet d'évaluer simplement si un ouvrage est validé (sans
-faire la distinction entre point par point et par échantillonnage), gelé ou
-non validé.
+Cette fonction permet d'évaluer simplement si un ouvrage est gelé, non
+validé, validé avec ou sans information manquante (obligatoire ou
+complémentaire parmi la hauteur de chute et la présence de passe à poisson).
 }

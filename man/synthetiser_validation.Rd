@@ -18,7 +18,7 @@ lesquels on veut le détail}
 \description{
 L'évaluation de la validation de chaque ouvrage réalisée avec la fonction
 \code{\link[=evaluer_validation]{evaluer_validation()}} est synthétisée en comptant le nombre d'ouvrages
-validés, non validés ou gelés.
+validés (avec ou sans information manquante), non validés ou gelés.
 }
 \details{
 Le décompte des ouvrages peut être réalisé au niveau du jeu de données entier

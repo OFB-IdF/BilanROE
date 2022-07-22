@@ -2,7 +2,8 @@
 % Please edit documentation in R/evaluer_validation.R
 \name{visualiser_evolution_validations}
 \alias{visualiser_evolution_validations}
-\title{Visualiser l'évolution du nombre d'obstacles validés, non validés ou gelés}
+\title{Visualiser l'évolution du nombre d'obstacles en fonction de leur statut de
+validation et de la complétude des informations}
 \usage{
 visualiser_evolution_validations(
   liste_bilans,
@@ -29,5 +30,6 @@ groupes à faibles effectifs}
 }
 \description{
 Cette fonction utilise des bilans réalisés à différentes dates pour suivre
-l'évolution du statut de validation des obstacles.
+l'évolution du statut de validation et de complétude de l'information des
+obstacles.
 }

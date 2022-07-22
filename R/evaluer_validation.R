@@ -1,8 +1,8 @@
-#' Evaluer la validation des fiches ouvrages
+#' Evaluer la validation et la complétude des fiches ouvrages
 #'
-#' Cette fonction permet d'évaluer simplement si un ouvrage est validé (sans
-#' faire la distinction entre point par point et par échantillonnage), gelé ou
-#' non validé.
+#' Cette fonction permet d'évaluer simplement si un ouvrage est gelé, non
+#' validé, validé avec ou sans information manquante (obligatoire ou
+#' complémentaire parmi la hauteur de chute et la présence de passe à poisson).
 #'
 #' @inheritParams evaluer_completude
 #'
@@ -22,8 +22,6 @@ evaluer_validation <- function(donnees_bilan) {
         ) %>%
         dplyr::mutate(
             validation = dplyr::case_when(
-                # statut_code %in% c(0, 4) ~ "Validé",
-                # statut_code %in% c(2, 3) ~ statut_nom
                 statut_code %in% c(2, 3) ~ statut_nom,
                 obligatoire < 4 ~ "Obligatoire manquant",
                 complementaire < 2 ~ "Complémentaire manquant",
@@ -36,7 +34,7 @@ evaluer_validation <- function(donnees_bilan) {
 #'
 #' L'évaluation de la validation de chaque ouvrage réalisée avec la fonction
 #' [evaluer_validation()] est synthétisée en comptant le nombre d'ouvrages
-#' validés, non validés ou gelés.
+#' validés (avec ou sans information manquante), non validés ou gelés.
 #'
 #' Le décompte des ouvrages peut être réalisé au niveau du jeu de données entier
 #' (par défaut), ou au niveau de sous-ensembles en indiquant comme paramètres
@@ -79,7 +77,7 @@ synthetiser_validation <- function(donnees_bilan, ..., format = "long") {
 #' Visualisation de la synthèse des validations
 #'
 #' Représente sous la forme d'une treemap, la répartition des nombres d'ouvrages
-#' en fonction de leur statut de validation (Validé, Non validé ou Gelé). Cette
+#' en fonction de leur statut de validation. Cette
 #' répartition peut être déclinée par une variable de regroupement des ouvrages
 #' (e.g. par département)
 #'
@@ -282,10 +280,12 @@ visualiser_sankey <- function(df, etape, groupe, text_size = 3, log_y = FALSE, .
 
 }
 
-#' Visualiser l'évolution du nombre d'obstacles validés, non validés ou gelés
+#' Visualiser l'évolution du nombre d'obstacles en fonction de leur statut de
+#' validation et de la complétude des informations
 #'
 #' Cette fonction utilise des bilans réalisés à différentes dates pour suivre
-#' l'évolution du statut de validation des obstacles.
+#' l'évolution du statut de validation et de complétude de l'information des
+#' obstacles.
 #'
 #' @param liste_bilans une liste de tableaux obtenus avec la fonction
 #'   [preparer_donnees_bilan()]. Cette liste doit être nommée (e.g. avec les

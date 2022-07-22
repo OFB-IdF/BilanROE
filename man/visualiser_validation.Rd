@@ -14,7 +14,7 @@ des bilans, obtenue avec la fonction \code{\link[=preparer_donnees_bilan]{prepar
 }
 \description{
 Représente sous la forme d'une treemap, la répartition des nombres d'ouvrages
-en fonction de leur statut de validation (Validé, Non validé ou Gelé). Cette
+en fonction de leur statut de validation. Cette
 répartition peut être déclinée par une variable de regroupement des ouvrages
 (e.g. par département)
 }
