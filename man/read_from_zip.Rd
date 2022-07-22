@@ -4,12 +4,12 @@
 \alias{read_from_zip}
 \title{Lire le contenu d'une archive}
 \usage{
-read_from_zip(zipfile, file, fun, ...)
+read_from_zip(zipfile, file_pattern, fun, ...)
 }
 \arguments{
 \item{zipfile}{texte. Chemin de l'archive}
 
-\item{file}{texte. Tout ou partie du nom du fichier à extraire}
+\item{file_pattern}{texte. Tout ou partie du chemin du fichier à extraire}
 
 \item{fun}{nom de la fonction à utiliser pour lire le fichier}
 

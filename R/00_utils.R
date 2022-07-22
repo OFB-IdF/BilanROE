@@ -1,14 +1,14 @@
 #' Lire le contenu d'une archive
 #'
 #' @param zipfile texte. Chemin de l'archive
-#' @param file texte. Tout ou partie du nom du fichier à extraire
+#' @param file_pattern texte. Tout ou partie du chemin du fichier à extraire
 #' @param fun nom de la fonction à utiliser pour lire le fichier
 #' @param ...  paramètres supplémentaires à passer à la fonction `fun`
 #'
 #' @export
 #'
 #' @importFrom archive archive_extract
-read_from_zip <- function(zipfile, file, fun, ...) {
+read_from_zip <- function(zipfile, file_pattern, fun, ...) {
 
     temp <- tempfile()
 
@@ -16,10 +16,12 @@ read_from_zip <- function(zipfile, file, fun, ...) {
 
     filepath <- list.files(
         path = temp,
-        pattern = file,
         full.names = TRUE,
         recursive = TRUE
-    )
+    ) %>%
+        (function(x) {
+            x[grepl(x = x, pattern = file_pattern)]
+        })
 
     obj <- fun(filepath, ...)
 
