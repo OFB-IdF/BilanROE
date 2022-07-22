@@ -11,10 +11,23 @@
 #' @importFrom dplyr mutate case_when
 evaluer_validation <- function(donnees_bilan) {
     donnees_bilan %>%
+        dplyr::left_join(
+            dplyr::bind_cols(
+                donnees_bilan %>%
+                    evaluer_completude(),
+                donnees_bilan %>%
+                    dplyr::select(etape)
+            ),
+             by = c("identifiant_roe", "etape")
+        ) %>%
         dplyr::mutate(
             validation = dplyr::case_when(
-                statut_code %in% c(0, 4) ~ "Validé",
-                statut_code %in% c(2, 3) ~ statut_nom
+                # statut_code %in% c(0, 4) ~ "Validé",
+                # statut_code %in% c(2, 3) ~ statut_nom
+                statut_code %in% c(2, 3) ~ statut_nom,
+                obligatoire < 4 ~ "Obligatoire manquant",
+                complementaire < 2 ~ "Complémentaire manquant",
+                TRUE ~ "Ok"
             )
         )
 }
@@ -89,7 +102,11 @@ visualiser_validation <- function(donnees_bilan, groupe = NULL) {
         dplyr::mutate(
             validation = factor(
                 validation,
-                levels = c("Validé", "Non validé", "Gelé")
+                levels = c(
+                    "Ok",
+                    "Complémentaire manquant", "Obligatoire manquant",
+                    "Non validé", "Gelé"
+                    )
             )
         )
 
@@ -295,6 +312,15 @@ visualiser_evolution_validations <- function(liste_bilans, ..., log_y = FALSE, t
         }
     ) %>%
         evaluer_validation() %>%
+        dplyr::mutate(
+            validation = factor(
+                validation,
+                levels = c(
+                    "Non validé", "Obligatoire manquant","Complémentaire manquant",
+                    "Ok", "Gelé"
+                )
+            )
+        ) %>%
         preparer_donnees_sankey(
             etape = etape,
             individu = identifiant_roe,
@@ -311,9 +337,11 @@ visualiser_evolution_validations <- function(liste_bilans, ..., log_y = FALSE, t
         ggplot2::scale_fill_manual(
             name = "",
             values = c(
-                `Gelé` = "#C1CDCD",
-                `Non validé` = "#F08080",
-                `Validé` = "#6495ED"
+                `Non validé` = "#C2133E",#unname(templatesOFB::ofb_cols("rouge")),
+                `Obligatoire manquant` = "#ED6A53",#unname(templatesOFB::ofb_cols("orange1")),
+                `Complémentaire manquant` = "#FFD744",#unname(templatesOFB::ofb_cols("jaune")),
+                `Ok` = "#003A76",#unname(templatesOFB::ofb_cols("bleu1"))
+                `Gelé` = "#564949"#unname(templatesOFB::ofb_cols("marron1")),
             )
         ) +
         ggplot2::theme(
