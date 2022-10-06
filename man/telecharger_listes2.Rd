@@ -11,9 +11,6 @@ telecharger_listes2(limites_zone = NULL)
 \item{limites_zone}{couche spatiale de type (multi)polygone délimitant l'aire
 d'intérêt.}
 }
-\value{
-
-}
 \description{
 Télécharger les linéaires de cours d'eau classés en liste 2 au titre de la
 continuité écologique (flux Sandre)

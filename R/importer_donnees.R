@@ -117,7 +117,7 @@ telecharger_masses_eau <- function(limites_zone = NULL) {
 #' @export
 #'
 #' @importFrom dplyr mutate group_by summarise
-#' @importFrom stringr str_split
+#' @importFrom stringr str_split str_remove
 regrouper_masses_eau <- function(masses_eau) {
     masses_eau %>%
         dplyr::mutate(
@@ -236,4 +236,31 @@ telecharger_listes2 <- function(limites_zone = NULL) {
         rmapshaper::ms_clip(limites_zone)
 
     Listes2
+}
+
+#' Télécharger le ROE
+#'
+#' Cette fonction permet de télécharger le ROE diffusé via un fluw WFS du Sandre (https://www.sandre.eaufrance.fr/atlas/srv/fre/catalog.search#/metadata/59057026-b40c-4cf9-9e3e-7296e0aa1a78).La récupération de ces données peut prendre un peu de temps.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' @importFrom httr parse_url build_url
+#' @importFrom purrr list_merge
+#' @importFrom sf st_read
+telecharger_roe_sandre <- function() {
+    "https://services.sandre.eaufrance.fr/geo/obs?SERVICE=WFS" %>%
+        httr::parse_url() %>%
+        purrr::list_merge(
+            query = list(
+                service = "wfs",
+                version = "2.0.0",
+                request = "GetFeature",
+                typename = "sa:ObstEcoul",
+                srsName = "EPSG:4326"
+            )
+        ) %>%
+        httr::build_url() %>%
+        sf::st_read()
 }
