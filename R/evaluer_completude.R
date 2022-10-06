@@ -188,8 +188,9 @@ visualiser_completude <- function(donnees_bilan, groupe = NULL, visualiser_prior
     DataUpset <- dplyr::inner_join(
         dplyr::select(donnees_bilan, prioritaire, identifiant_roe, {{ groupe }}),
         donnees_bilan %>%
-            evaluer_validation() %>%
-            dplyr::filter(validation != "Gelé") %>%
+            # dplyr::mutate(etape = NA_character_) %>%
+            # evaluer_validation() %>%
+            # dplyr::filter(validation != "Gelé") %>%
             evaluer_completude(),
         by = "identifiant_roe"
     ) %>%

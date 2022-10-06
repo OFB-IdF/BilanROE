@@ -10,13 +10,13 @@ DonneesBrutes_1 <- importer_donnees(
 )
 
 DonneesBrutes_2 <- importer_donnees(
-    chemin_archive = "dev/geobs_interne2021_03_13_sansRadars.zip",
+    chemin_archive = "dev/geobs_interne2021_06_20_sansRadars.zip",
     bassins = Bassins,
     departements = Departements
 )
 
 DonneesBrutes_3 <- importer_donnees(
-    chemin_archive = "dev/geobs_interne2021_06_20_sansRadars.zip",
+    chemin_archive = "dev/geobs_interne2022_07_04_SansRadars.zip",
     bassins = Bassins,
     departements = Departements
 )
@@ -26,9 +26,21 @@ OuvragesPrioritaires <- readxl::read_xlsx(
     dplyr::select(identifiant_roe = `Code ROE`) %>%
     dplyr::mutate(prioritaire = TRUE)
 
+TypologieOuvrages <- vroom::vroom(
+    file = "dev/typologie_ouvrages.csv",
+    col_types = list(
+        .default = vroom::col_character()
+    )
+)
+
 LimitesZone <- telecharger_limites_region(codes_region = "11")
 
 ReseauHydro <- telecharger_ce_topage(bassin = "03", limites_zone = LimitesZone)
+
+NomsCeTopo <-  importer_donnees(
+    chemin_archive = "dev/geobs_interne2022_07_04_SansRadars.zip"
+) %>%
+    dplyr::distinct(id_troncon_topo, nom_topo)
 
 MassesEau <- telecharger_masses_eau(limites_zone = LimitesZone)
 
@@ -37,8 +49,9 @@ Listes2 <- telecharger_listes2(limites_zone = LimitesZone)
 usethis::use_data(
     DonneesBrutes_1, DonneesBrutes_2, DonneesBrutes_3,
     OuvragesPrioritaires,
+    TypologieOuvrages,
     LimitesZone,
-    ReseauHydro,
+    ReseauHydro, NomsCeTopo,
     MassesEau,
     Listes2,
     internal = TRUE,

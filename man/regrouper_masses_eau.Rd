@@ -9,9 +9,6 @@ regrouper_masses_eau(masses_eau)
 \arguments{
 \item{masses_eau}{}
 }
-\value{
-
-}
 \description{
 Regrouper les masses d'eau par cours d'eau principaux
 }

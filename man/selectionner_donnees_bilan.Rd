@@ -4,7 +4,7 @@
 \alias{selectionner_donnees_bilan}
 \title{Sélectionne les champs de l'export qui seront utilisés pour réaliser le bilan}
 \usage{
-selectionner_donnees_bilan(donnees_brutes)
+selectionner_donnees_bilan(donnees_brutes, type = "roe")
 }
 \arguments{
 \item{donnees_brutes}{tableau de données obtenu avec la fonction

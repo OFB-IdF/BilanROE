@@ -7,7 +7,8 @@
 preparer_donnees_bilan(
   donnees_brutes,
   ouvrages_prioritaires = NULL,
-  masses_eau = NULL
+  masses_eau = NULL,
+  type = "roe"
 )
 }
 \arguments{

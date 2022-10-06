@@ -10,6 +10,10 @@
 #'
 #' @importFrom dplyr mutate case_when
 evaluer_validation <- function(donnees_bilan) {
+    if (!"etape" %in% colnames(donnees_bilan))
+        donnees_bilan <- donnees_bilan %>%
+            dplyr::mutate(etape = NA_character_)
+
     donnees_bilan %>%
         dplyr::left_join(
             dplyr::bind_cols(

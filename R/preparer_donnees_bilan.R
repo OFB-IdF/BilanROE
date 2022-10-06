@@ -8,8 +8,9 @@
 #'   l'export qui sont utilisés par les fonctions de {BilanROE}
 #'
 #' @importFrom dplyr select starts_with
-selectionner_donnees_bilan <- function(donnees_brutes) {
-    donnees_brutes %>%
+selectionner_donnees_bilan <- function(donnees_brutes, type = "roe") {
+    if (type == "roe") {
+        donnees_brutes %>%
         dplyr::select(
             identifiant_roe,
             nom_principal,
@@ -30,6 +31,84 @@ selectionner_donnees_bilan <- function(donnees_brutes) {
             dplyr::starts_with("fnt_"),
             dplyr::starts_with("usage_")
         )
+    } else {
+        if (type == "sandre") {
+            donnees_brutes %>%
+                dplyr::select(
+                    identifiant_roe = CdObstEcoul,
+                    nom_principal = NomPrincipalObstEcoul,
+                    dept_code = CdDepartement,
+                    dept_nom = LbDepartement,
+                    commune_code = CdCommune,
+                    x_l93 = CoordXPointCarOuvrage,
+                    y_l93 = CoordYPointCarOuvrage,
+                    bassin_administratif = NomCircAdminBassin,
+                    id_troncon_carthage = IdTronconHydrograElt,
+                    nom_carthage = NomEntiteHydrographique,
+                    id_troncon_topo = IdTronconHydroBDTOPO,
+                    statut_code = CdModeValidObstEcoul,
+                    statut_nom = LbModeValidObstEcoul,
+                    # date_creation,
+                    # date_modification,
+                    date_validation_ouvrage = DateValidObstEcoul.timePosition,
+                    # date_construction_ouvrage,
+                    # date_modification_ouvrage,
+                    etat_code = CdEtOuvrage,
+                    etat_nom = LbEtOuvrage,
+                    stype_code = CdTypeOuvrage,
+                    stype_nom = LbTypeOuvrage,
+                    emo_code1 = CdTypeElMobSeuil1,
+                    emo_nom1 = LbTypeElMobSeuil1,
+                    emo_code2 = CdTypeElMobSeuil2,
+                    emo_nom2  =LbTypeElMobSeuil2,
+                    emo_code3 = CdTypeElMobSeuil3,
+                    emo_nom3 = LbTypeElMobSeuil3,
+                    hauteur_chute_etiage = HautChutEtObstEcoul,
+                    hauteur_chute_etiage_classe = LbHautChutClObstEcoul,
+                    fpi_code1 = CdTypeDispFranchPiscicole1,
+                    fpi_nom1 = LbTypeDispFranchPiscicole1,
+                    fpi_code2 = CdTypeDispFranchPiscicole2,
+                    fpi_nom2 = LbTypeDispFranchPiscicole2,
+                    fpi_code3 = CdTypeDispFranchPiscicole3,
+                    fpi_nom3 = LbTypeDispFranchPiscicole3,
+                    fpi_code4 = CdTypeDispFranchPiscicole4,
+                    fpi_nom4 = LbTypeDispFranchPiscicole4,
+                    fpi_code5 = CdTypeDispFranchPiscicole5,
+                    fpi_nom5 = LbTypeDispFranchPiscicole5,
+                    fnt_code1 = CdTypeDispFranchNavig1,
+                    fnt_nom1 = LbTypeDispFranchNavig1,
+                    fnt_code2 = CdTypeDispFranchNavig2,
+                    fnt_nom2 = LbTypeDispFranchNavig2,
+                    fnt_code3 = CdTypeDispFranchNavig3,
+                    fnt_nom3 = LbTypeDispFranchNavig3,
+                    usage_code1 = CdUsageObstEcoul1,
+                    usage_nom1 = LbUsageObstEcoul1,
+                    usage_code2 = CdUsageObstEcoul2,
+                    usage_nom2 = LbUsageObstEcoul2,
+                    usage_code3 = CdUsageObstEcoul3,
+                    usage_nom3 = LbUsageObstEcoul3,
+                    usage_code4 = CdUsageObstEcoul4,
+                    usage_nom4 = LbUsageObstEcoul4
+                ) %>%
+                dplyr::mutate(
+                    date_modification_ouvrage = NA,
+                    type_code = stringr::str_sub(
+                        string = stype_code,
+                        start = 1,
+                        end = 3
+                        )
+                    ) %>%
+                dplyr::left_join(
+                    TypologieOuvrages,
+                    by = "type_code"
+                ) %>%
+                dplyr::left_join(
+                    NomsCeTopo,
+                    by = "id_troncon_topo"
+                )
+        }
+    }
+
 }
 
 #' Ajouter l'information sur les ouvrages prioritaires
@@ -89,9 +168,10 @@ ajouter_prioritaires <- function(donnees_bilan, ouvrages_prioritaires) {
 #' @importFrom sf st_as_sf st_join st_drop_geometry
 preparer_donnees_bilan <- function(donnees_brutes,
                                    ouvrages_prioritaires = NULL,
-                                   masses_eau = NULL) {
+                                   masses_eau = NULL,
+                                   type= "roe") {
     DonneesBilan <- donnees_brutes %>%
-        selectionner_donnees_bilan()
+        selectionner_donnees_bilan(type = type)
 
     if (!is.null(ouvrages_prioritaires))
         DonneesBilan <- DonneesBilan %>%

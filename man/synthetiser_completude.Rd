@@ -14,9 +14,6 @@ des bilans, obtenue avec la fonction \code{\link[=preparer_donnees_bilan]{prepar
 \item{...}{noms des champs (sans "") permettant de définir les groupes pour
 lesquels on veut le détail}
 }
-\value{
-
-}
 \description{
 L'évaluation de la complétude des informations à l'ouvrage est synthétisée en
 comptant le nombre d'ouvrages pour lequel il manque au moins une information
