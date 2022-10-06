@@ -3,6 +3,7 @@
 export(cartographier_completude)
 export(evaluer_completude)
 export(evaluer_validation)
+export(generer_cartes_obstacles)
 export(generer_fiches_terrain)
 export(importer_donnees)
 export(preparer_donnees_bilan)

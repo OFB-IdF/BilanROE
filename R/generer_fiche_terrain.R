@@ -11,9 +11,10 @@
 #' @param date_export date à laquelle l'export du ROE utilisé a été réalisée
 #' @param dossier_sortie chemin du dossier dans lequel seront enregistrées les
 #'   fiches terrain générées.
-#' @param hierarchie_dossiers vecteur contenant les noms de colonnes du tableau
+#' @param sous_dossiers vecteur contenant les noms de colonnes du tableau
 #'   `donnees` qui serviront à hiérarchiser les enregistrements des fiches (e.g.
 #'   par département en spécifiant "dept_nom")
+#' @param fond_carte fond de carte, objet raster de classe stars
 #'
 #' @export
 #'
@@ -25,7 +26,7 @@
 #' @importFrom sf st_as_sf st_transform st_coordinates st_drop_geometry
 #' @importFrom stringr str_split str_detect
 #' @importFrom tidyr pivot_longer
-generer_fiches_terrain <- function(donnees, codes_roe = NULL, date_export, dossier_sortie = getwd(), sous_dossiers = NULL) {
+generer_fiches_terrain <- function(donnees, codes_roe = NULL, date_export, dossier_sortie = getwd(), sous_dossiers = NULL, fond_carte) {
 
     formater_cellule <- function(nom_cellule) {
         nom_cellule %>%
@@ -87,6 +88,41 @@ generer_fiches_terrain <- function(donnees, codes_roe = NULL, date_export, dossi
         total = length(codes_roe),
         format = "[:bar] (:eta)"
     )
+
+    generer_carte <- function(code_roe) {
+        pb$tick()
+
+        donnees_ouvrage <- donnees %>%
+            dplyr::filter(identifiant_roe %in% code_roe) %>%
+            sf::st_as_sf(
+                coords = c("x_l93", "y_l93"),
+                crs = 2154,
+                remove = FALSE
+            )
+
+        ouvrage_bbox <- donnees_ouvrage %>%
+            sf::st_buffer(625) %>%
+            sf::st_bbox()
+
+        fond_ouvrage <- fond_carte %>%
+            sf::st_crop(ouvrage_bbox) %>%
+            stars::st_as_stars() %>%
+            stars::st_rgb()
+
+        carte_ouvrage <- ggplot2::ggplot() +
+            stars::geom_stars(data = fond_ouvrage) +
+            ggplot2::geom_sf(data = donnees_ouvrage, size = 5.75, colour = "black") +
+            ggplot2::geom_sf(data = donnees_ouvrage, size = 5, colour = "darkgrey") +
+            ggplot2::theme_void()
+
+        carte_ouvrage
+        # ggplot2::ggsave(
+        #     plot = carte_ouvrage,
+        #     filename = stringr::str_replace(unique(donnees_ouvrage$fichier_sortie), pattern = ".xlsx", replacement = ".png"),
+        #     width = 15, height = 15, units = "cm",
+        #     dpi = 300
+        # )
+    }
 
     generer_fiche_terrain <- function(code_roe) {
         pb$tick()
@@ -546,6 +582,19 @@ generer_fiches_terrain <- function(donnees, codes_roe = NULL, date_export, dossi
         ecrire_donnee(
             valeur = iconv(paste0("Export Géobs: ", date_export), to = "latin1"),
             cellule = c("B", 81)
+        )
+
+        print(generer_carte(code_roe))
+
+        openxlsx::insertPlot(
+            wb = FicheTerrain,
+            sheet = 1,
+            width = 15,
+            height = 15,
+            units = "cm",
+            dpi = 300,
+            fileType = "png",
+            xy = c("Z", 2)
         )
 
         openxlsx::saveWorkbook(
