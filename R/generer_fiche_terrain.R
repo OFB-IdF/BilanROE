@@ -92,17 +92,26 @@ generer_fiches_terrain <- function(donnees, codes_roe = NULL, date_export, dossi
     generer_carte <- function(code_roe) {
         pb$tick()
 
-        donnees_ouvrage <- donnees %>%
-            dplyr::filter(identifiant_roe %in% code_roe) %>%
+        donnees_sf <- donnees %>%
             sf::st_as_sf(
                 coords = c("x_l93", "y_l93"),
                 crs = 2154,
                 remove = FALSE
             )
 
+        donnees_ouvrage <- donnees_sf %>%
+            dplyr::filter(identifiant_roe %in% code_roe)
+
         ouvrage_bbox <- donnees_ouvrage %>%
             sf::st_buffer(625) %>%
             sf::st_bbox()
+
+        donnees_ouvrage_prox <- donnees_sf %>%
+            dplyr::filter(
+                x_l93 >= ouvrage_bbox["xmin"] & x_l93 <= ouvrage_bbox["xmax"] &
+                    y_l93 >= ouvrage_bbox["ymin"] & y_l93 <= ouvrage_bbox["ymax"] &
+                    identifiant_roe != code_roe
+            )
 
         fond_ouvrage <- fond_carte %>%
             sf::st_crop(ouvrage_bbox) %>%
@@ -113,6 +122,18 @@ generer_fiches_terrain <- function(donnees, codes_roe = NULL, date_export, dossi
             stars::geom_stars(data = fond_ouvrage) +
             ggplot2::geom_sf(data = donnees_ouvrage, size = 5.75, colour = "black") +
             ggplot2::geom_sf(data = donnees_ouvrage, size = 5, colour = "darkgrey") +
+            ggplot2::geom_sf(data = donnees_ouvrage_prox,
+                             colour = "white",
+                             size = 3.25
+            ) +
+            ggplot2::geom_sf(data = donnees_ouvrage_prox,
+                             colour = "black",
+                             size = 2.5
+            ) +
+            ggplot2::coord_sf(
+                xlim = ouvrage_bbox[c("xmin", "xmax")],
+                ylim = ouvrage_bbox[c("ymin", "ymax")], clip = "off"
+            ) +
             ggplot2::theme_void()
 
         carte_ouvrage
@@ -136,7 +157,7 @@ generer_fiches_terrain <- function(donnees, codes_roe = NULL, date_export, dossi
         )
 
         ecrire_donnee <- function(cellule, valeur) {
-            if (!is.na(cellule))
+            if (all(!is.na(cellule)))
                 openxlsx::writeData(
                     wb = FicheTerrain,
                     sheet = 1,
