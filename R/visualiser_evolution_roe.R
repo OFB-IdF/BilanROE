@@ -26,8 +26,16 @@ visualiser_evolution_roe <- function(donnees_bilan, groupe = NULL, log_y = FALSE
     DonneesTendances <- donnees_bilan %>%
         dplyr::mutate(
             date = dplyr::case_when(
-                !is.na(date_validation_ouvrage) ~ lubridate::as_date(date_validation_ouvrage),
-                is.na(date_validation_ouvrage) & !is.na(date_modification_ouvrage) ~ lubridate::as_date(date_modification_ouvrage)
+                !is.na(date_creation) ~ date_creation,
+                !is.na(date_validation_ouvrage) ~ date_validation_ouvrage,
+                !is.na(date_modification_ouvrage) ~ date_modification_ouvrage
+            ) %>%
+                stringr::str_extract(pattern = "(\\d{2}\\/\\d{2}\\/\\d{4})|(\\d{4}-\\d{2}-\\d{2})")
+        ) %>%
+        dplyr::mutate(
+            date = dplyr::case_when(
+                stringr::str_detect(date, "\\d{2}\\/\\d{2}\\/\\d{4}") ~ lubridate::as_date(date, format = "%d/%m/%Y"),
+                stringr::str_detect(date, "\\d{4}-\\d{2}-\\d{2}") ~ lubridate::as_date(date, format = "%Y-%m-%d")
             )
         ) %>%
         dplyr::filter(!is.na(date)) %>%
