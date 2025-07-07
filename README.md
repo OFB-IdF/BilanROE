@@ -5,13 +5,9 @@ Ce pakage permet de réaliser des traitements et visualisations à partir d'expo
 Il peut être installé depuis le Gitlab de l'OFB:
 
 ```r
-if (!require(remotes))
-    install.packages("remotes")
+if (!require(pak))
+    install.packages("pak")
 
-remotes::install_gitlab(
-    repo = "cedric.mondy1/bilanroe",
-    host = "https://gitlab.ofb.fr", 
-    dependencies = TRUE
-    )
+pak::pkg_install("OFB-IdF/BilanROE")
 
 ```
