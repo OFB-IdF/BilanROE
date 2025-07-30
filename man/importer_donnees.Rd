@@ -4,7 +4,12 @@
 \alias{importer_donnees}
 \title{Importer les données de l'export}
 \usage{
-importer_donnees(chemin_archive, bassins = NULL, departements = NULL)
+importer_donnees(
+  chemin_archive,
+  bassins = NULL,
+  departements = NULL,
+  encoding = "windows-1252"
+)
 }
 \arguments{
 \item{chemin_archive}{texte. Chemin vers l'archive zip contenant l'export ROE}
@@ -18,6 +23,8 @@ importés.}
 importer. Par défaut (NULL), tous les départements sont importés. Les
 obstacles avec un département non renseigné (NULL, NA ou '') ne sont pas
 importés.}
+
+\item{encoding}{texte décrivant l'encodage à utiliser dans vroom::locale}
 }
 \value{
 un tableau contenant l'ensemble de l'export ROE renseigné, filtré le

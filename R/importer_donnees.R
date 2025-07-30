@@ -9,15 +9,17 @@
 #'   importer. Par défaut (NULL), tous les départements sont importés. Les
 #'   obstacles avec un département non renseigné (NULL, NA ou '') ne sont pas
 #'   importés.
+#' @param encoding texte décrivant l'encodage à utiliser dans vroom::locale
 #'
 #' @return un tableau contenant l'ensemble de l'export ROE renseigné, filtré le
 #'   cas échéant par bassin hydrographique ou département.
 #' @export
 #'
 #' @importFrom dplyr filter
+#' @importFrom magrittr %>%
 #' @importFrom purrr map_df
 #' @importFrom vroom vroom locale
-importer_donnees <- function(chemin_archive, bassins = NULL, departements = NULL) {
+importer_donnees <- function(chemin_archive, bassins = NULL, departements = NULL, encoding = "windows-1252") {
     DonneesBrutes <-
         read_from_zip(
         zipfile = chemin_archive,
@@ -29,7 +31,7 @@ importer_donnees <- function(chemin_archive, bassins = NULL, departements = NULL
                 delim = ";",
                 col_types = paste(rep("c", 107), collapse = ""),
                 locale = vroom::locale(
-                    encoding = "windows-1252",
+                    encoding = encoding,
                     decimal_mark = ","
                     )
             )
