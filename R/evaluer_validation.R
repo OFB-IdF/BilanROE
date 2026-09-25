@@ -18,7 +18,8 @@ evaluer_validation <- function(donnees_bilan) {
         dplyr::left_join(
             dplyr::bind_cols(
                 donnees_bilan %>%
-                    evaluer_completude(),
+                    evaluer_completude() |>
+                    dplyr::select(-statut_nom),
                 donnees_bilan %>%
                     dplyr::select(etape)
             ),
@@ -362,6 +363,103 @@ visualiser_evolution_validations <- function(liste_bilans, ..., log_y = FALSE, t
             ggplot2::theme(
                 strip.text = ggplot2::element_blank()
             )
+
+    gg
+}
+
+#' Visualiser l'évolution du nombre d'obstacles en fonction de la complétude des informations
+#'
+#' Cette fonction utilise des bilans réalisés à différentes dates pour suivre
+#' l'évolution de la complétude de l'information des
+#' obstacles.
+#'
+#' @param liste_bilans une liste de tableaux obtenus avec la fonction
+#'   [preparer_donnees_bilan()]. Cette liste doit être nommée (e.g. avec les
+#'   dates des exports correspondants aux différents tableaux de bilan) et les
+#'   éléments de cette liste classés dans l'ordre dans lequel on veut les
+#'   afficher.
+#' @inheritParams visualiser_sankey
+#'
+#' @export
+#'
+#' @importFrom dplyr mutate
+#' @importFrom ggplot2 scale_fill_manual
+#' @importFrom purrr map2_df
+visualiser_evolution_completude <- function(liste_bilans, ..., log_y = FALSE, text_size = 3) {
+
+    if (length(liste_bilans) < 2)
+        stop("Au moins deux bilans doivent être fournis")
+
+    gg <- purrr::map2_df(
+        .x = liste_bilans,
+        .y = names(liste_bilans),
+        .f = function(x = .x, y = .y) {
+            x |>
+                evaluer_completude() |>
+                dplyr::mutate(etape = y)
+        }
+    ) %>%
+        dplyr::select(identifiant_roe, etape, statut_nom, obligatoire, complementaire) |>
+        dplyr::mutate(
+            completude = dplyr::case_when(
+                statut_nom == "Gelé" ~ "Gelé",
+                obligatoire < 4 ~ "Obligatoire manquant",
+                complementaire < 2 ~ "Complémentaire manquant",
+                TRUE ~ "Ok"
+            ) |>
+                factor(
+                    levels = c(
+                        "Obligatoire manquant","Complémentaire manquant", "Ok",
+                        "Gelé"
+                        )
+                    )
+            ) %>%
+        dplyr::left_join(
+            liste_bilans |>
+                purrr::map_df(
+                    .f = function(x = .x) {
+                        x |>
+                            dplyr::select(identifiant_roe, ...)
+                    }
+                ),
+            by = "identifiant_roe"
+        ) |>
+        preparer_donnees_sankey(
+            etape = etape,
+            individu = identifiant_roe,
+            groupe = completude,
+            ...
+        ) %>%
+        visualiser_sankey(
+            etape = etape,
+            groupe = completude,
+            text_size = text_size,
+            log_y = log_y,
+            ...
+        ) +
+        ggplot2::scale_fill_manual(
+            name = "",
+            values = c(
+                `Obligatoire manquant` = "#ED6A53",#unname(templatesOFB::ofb_cols("orange1")),
+                `Complémentaire manquant` = "#FFD744",#unname(templatesOFB::ofb_cols("jaune")),
+                `Ok` = "#003A76",#unname(templatesOFB::ofb_cols("bleu1"))
+                `Gelé` = "#564949"#unname(templatesOFB::ofb_cols("marron1")),
+            )
+        ) +
+        ggplot2::theme(
+            panel.grid = ggplot2::element_blank(),
+            panel.background = ggplot2::element_blank(),
+            axis.ticks.x = ggplot2::element_blank(),
+            axis.text.y = ggplot2::element_blank(),
+            axis.ticks.y = ggplot2::element_blank(),
+            axis.line = ggplot2::element_blank()
+        )
+
+    if (length(ggplot2::vars(...)) == 0)
+        gg <- gg +
+        ggplot2::theme(
+            strip.text = ggplot2::element_blank()
+        )
 
     gg
 }

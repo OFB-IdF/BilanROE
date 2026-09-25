@@ -71,6 +71,7 @@ evaluer_completude <- function(donnees_bilan) {
         ) %>%
         dplyr::transmute(
             identifiant_roe,
+            statut_nom,
             dplyr::across(
                 .cols = c(
                     "nom_principal",
@@ -358,7 +359,7 @@ preparer_donnees_carte_completude <- function(donnees_bilan) {
     donnees_bilan %>%
         evaluer_validation() %>%
         dplyr::filter(validation != "Gelé") %>%
-        evaluer_completude() %>%
+        # evaluer_completude() %>%
         dplyr::filter(coordonnees == 1) %>%
         dplyr::select(
             identifiant_roe,
