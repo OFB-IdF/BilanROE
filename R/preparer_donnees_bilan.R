@@ -14,6 +14,7 @@ selectionner_donnees_bilan <- function(donnees_brutes, type = "roe") {
         dplyr::select(
             identifiant_roe,
             nom_principal,
+            auteur_type,
             dplyr::starts_with("dept"),
             commune_code,
             x_l93, y_l93,
